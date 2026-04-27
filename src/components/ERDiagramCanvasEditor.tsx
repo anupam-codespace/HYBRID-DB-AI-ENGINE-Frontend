@@ -68,10 +68,14 @@ function EntityNode({ id, data }: { id: string; data: EntityNodeData }) {
         {data.attributes.map((attr) => (
           <div key={attr.id} className="flex items-center gap-2 px-3 py-1.5 text-xs">
             {attr.isPrimary && (
-              <Key className="h-3 w-3 text-yellow-500 flex-shrink-0" title="Primary Key" />
+              <span title="Primary Key" className="flex-shrink-0 flex items-center">
+                <Key className="h-3 w-3 text-yellow-500" />
+              </span>
             )}
             {attr.isForeign && (
-              <Link className="h-3 w-3 text-blue-500 flex-shrink-0" title="Foreign Key" />
+              <span title="Foreign Key" className="flex-shrink-0 flex items-center">
+                <Link className="h-3 w-3 text-blue-500" />
+              </span>
             )}
             <span className={cn('flex-1', attr.isPrimary && 'font-semibold underline')}>
               {attr.name}
