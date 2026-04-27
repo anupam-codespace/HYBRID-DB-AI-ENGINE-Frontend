@@ -21,9 +21,8 @@ export function Header() {
           <Menu className="h-5 w-5" />
         </Button>
 
-        <img src="/favicon.png" alt="Logo" className="h-6 w-6 ml-1 mr-2" />
-        <h1 className="text-sm font-medium text-foreground tracking-tight">
-          HYBRID DATABASE AI ENGINE
+        <h1 className="text-base font-medium text-foreground ml-1 tracking-tight">
+          Hybrid Database AI Engine
         </h1>
       </div>
 

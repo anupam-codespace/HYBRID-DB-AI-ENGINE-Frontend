@@ -65,11 +65,8 @@ export function Sidebar() {
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-4 border-b border-border">
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 flex items-center justify-center">
-              <img src="/favicon.png" alt="Logo" className="h-7 w-7" />
-            </div>
             <div>
-              <p className="text-sm font-semibold leading-tight tracking-tight">HYBRID DB AI ENGINE</p>
+              <p className="text-base font-medium leading-tight tracking-tight">Hybrid Database AI Engine</p>
               <p className="text-[10px] text-muted-foreground">Database Architecture</p>
             </div>
           </div>

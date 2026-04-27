@@ -7,7 +7,7 @@ import { useAppStore } from '@/store/appStore'
 
 function EmptyState() {
   return (
-    <div className="flex flex-col items-start w-full select-none">
+    <div className="flex flex-col items-center w-full select-none text-center">
       <h1 className="text-[32px] sm:text-[40px] font-medium leading-tight tracking-tight text-foreground">
         Hi there
       </h1>
