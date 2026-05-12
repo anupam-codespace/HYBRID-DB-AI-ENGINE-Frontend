@@ -11,121 +11,89 @@ import ReactFlow, {
   type Node,
   BackgroundVariant,
   Panel,
+  Handle,
+  Position,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
-import {
-  Plus,
-  Save,
-  Download,
-  Trash2,
-  X,
-  Table2,
-  Tag,
-  Key,
-  Link,
-} from 'lucide-react'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Plus, Save, Trash2, X, Tag } from 'lucide-react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { useAppStore } from '@/store/appStore'
 import { saveERDiagram, exportERDiagram } from '@/lib/api'
 import { useToast } from '@/components/ui/toast'
 import type { EREntity, ERRelationship, ERAttribute } from '@/lib/api'
 import { generateId, cn } from '@/lib/utils'
 
-// ─── Custom ER Entity Node ────────────────────────────────────────────────────
+// ─── Custom Classic ER Nodes ──────────────────────────────────────────────────
 
-interface EntityNodeData {
-  label: string
-  attributes: ERAttribute[]
-  onDelete: (id: string) => void
-  onAddAttr: (entityId: string) => void
-}
-
-function EntityNode({ id, data }: { id: string; data: EntityNodeData }) {
+function ClassicEntityNode({ id, data }: { id: string; data: any }) {
   return (
-    <div className="min-w-[160px] rounded-xl border-2 border-primary bg-card shadow-lg overflow-hidden select-none">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-violet-600 px-3 py-2 flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          <Table2 className="h-3.5 w-3.5 text-white" />
-          <span className="text-white font-semibold text-sm">{data.label}</span>
-        </div>
-        <button
-          onClick={() => data.onDelete(id)}
-          className="text-white/70 hover:text-white transition-colors p-0.5 rounded"
-        >
-          <X className="h-3 w-3" />
-        </button>
-      </div>
-      {/* Attributes */}
-      <div className="divide-y divide-border">
-        {data.attributes.map((attr) => (
-          <div key={attr.id} className="flex items-center gap-2 px-3 py-1.5 text-xs">
-            {attr.isPrimary && (
-              <span title="Primary Key" className="flex-shrink-0 flex items-center">
-                <Key className="h-3 w-3 text-yellow-500" />
-              </span>
-            )}
-            {attr.isForeign && (
-              <span title="Foreign Key" className="flex-shrink-0 flex items-center">
-                <Link className="h-3 w-3 text-blue-500" />
-              </span>
-            )}
-            <span className={cn('flex-1', attr.isPrimary && 'font-semibold underline')}>
-              {attr.name}
-            </span>
-            <Badge variant="outline" className="text-[9px] py-0 h-4">
-              {attr.type}
-            </Badge>
-          </div>
-        ))}
-      </div>
-      {/* Add attribute */}
+    <div className="relative bg-[#74b84b] border-[1.5px] border-black min-w-[120px] px-6 py-3 font-bold text-black text-center shadow-sm">
+      <Handle type="target" position={Position.Top} className="opacity-0" />
+      <Handle type="source" position={Position.Bottom} className="opacity-0" />
+      <Handle type="source" position={Position.Left} className="opacity-0" />
+      <Handle type="source" position={Position.Right} className="opacity-0" />
+      {data.label}
       <button
-        onClick={() => data.onAddAttr(id)}
-        className="w-full flex items-center justify-center gap-1 py-1.5 text-[10px] text-muted-foreground hover:bg-muted/50 transition-colors border-t border-border"
+        onClick={(e) => { e.stopPropagation(); data.onAddAttr(id); }}
+        className="absolute -bottom-3 -right-3 bg-white border border-black rounded-full p-1 shadow-sm hover:bg-gray-100 transition-colors z-10 opacity-0 group-hover:opacity-100"
+        title="Add Attribute"
       >
-        <Plus className="h-2.5 w-2.5" />
-        Add attribute
+        <Plus className="h-3 w-3 text-black" />
+      </button>
+      <button
+        onClick={(e) => { e.stopPropagation(); data.onDelete(id); }}
+        className="absolute -top-3 -right-3 bg-red-500 border border-black rounded-full p-1 shadow-sm hover:bg-red-600 transition-colors z-10 opacity-0 group-hover:opacity-100"
+        title="Delete Entity"
+      >
+        <X className="h-3 w-3 text-white" />
       </button>
     </div>
   )
 }
 
-const nodeTypes = { entity: EntityNode }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function entitiesToNodes(entities: EREntity[]): Node[] {
-  return entities.map((e, i) => ({
-    id: e.id,
-    type: 'entity',
-    position: e.position ?? { x: 80 + i * 240, y: 80 + (i % 3) * 200 },
-    data: {
-      label: e.name,
-      attributes: e.attributes,
-      onDelete: () => {},   // wired in component
-      onAddAttr: () => {},
-    },
-  }))
+function ClassicRelationshipNode({ id, data }: { id: string; data: any }) {
+  return (
+    <div className="relative bg-[#ff9b21] border-[1.5px] border-black w-24 h-24 flex items-center justify-center font-bold text-black transform rotate-45 shadow-sm">
+      <div className="transform -rotate-45">{data.label}</div>
+      <Handle type="target" position={Position.Top} className="opacity-0" />
+      <Handle type="source" position={Position.Bottom} className="opacity-0" />
+      <Handle type="source" position={Position.Left} className="opacity-0" />
+      <Handle type="source" position={Position.Right} className="opacity-0" />
+      <button
+        onClick={(e) => { e.stopPropagation(); data.onDelete(id); }}
+        className="absolute -top-2 -right-2 transform -rotate-45 bg-red-500 border border-black rounded-full p-1 shadow-sm hover:bg-red-600 transition-colors z-10 opacity-0 group-hover:opacity-100"
+        title="Delete Relationship"
+      >
+        <X className="h-2 w-2 text-white" />
+      </button>
+    </div>
+  )
 }
 
-function relationshipsToEdges(rels: ERRelationship[]): Edge[] {
-  return rels.map((r) => ({
-    id: r.id,
-    source: r.source,
-    target: r.target,
-    label: r.label ?? r.cardinality,
-    animated: false,
-    style: { stroke: 'hsl(221.2 83.2% 53.3%)', strokeWidth: 1.5 },
-    labelStyle: { fontSize: 10, fill: 'currentColor' },
-  }))
+function ClassicAttributeNode({ id, data }: { id: string; data: any }) {
+  return (
+    <div className="relative bg-[#48d1cc] border-[1.5px] border-black rounded-[50%] px-4 py-2 font-semibold text-black text-xs text-center shadow-sm min-w-[70px]">
+      <Handle type="target" position={Position.Top} className="opacity-0" />
+      <Handle type="source" position={Position.Bottom} className="opacity-0" />
+      <Handle type="source" position={Position.Left} className="opacity-0" />
+      <Handle type="source" position={Position.Right} className="opacity-0" />
+      {data.isPrimary ? <u className="underline underline-offset-2">{data.label}</u> : data.label}
+      <button
+        onClick={(e) => { e.stopPropagation(); data.onDelete(id); }}
+        className="absolute -top-2 -right-2 bg-red-500 border border-black rounded-full p-0.5 shadow-sm hover:bg-red-600 transition-colors z-10 opacity-0 group-hover:opacity-100"
+        title="Delete Attribute"
+      >
+        <X className="h-2.5 w-2.5 text-white" />
+      </button>
+    </div>
+  )
+}
+
+const nodeTypes = {
+  classicEntity: ClassicEntityNode,
+  classicRelationship: ClassicRelationshipNode,
+  classicAttribute: ClassicAttributeNode,
 }
 
 // ─── Attribute Edit Dialog ────────────────────────────────────────────────────
@@ -170,19 +138,7 @@ function AttrDialog({
               className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">Data Type</label>
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-            >
-              {['INT','BIGINT','VARCHAR','TEXT','BOOLEAN','DATE','TIMESTAMP','FLOAT','DECIMAL','UUID'].map(t => (
-                <option key={t}>{t}</option>
-              ))}
-            </select>
-          </div>
-          <div className="flex gap-4">
+          <div className="flex gap-4 pt-2">
             {[
               { label: 'Primary Key', state: isPrimary, set: setIsPrimary },
               { label: 'Foreign Key', state: isForeign, set: setIsForeign },
@@ -199,7 +155,7 @@ function AttrDialog({
               </label>
             ))}
           </div>
-          <div className="flex gap-2 pt-1">
+          <div className="flex gap-2 pt-2">
             <Button variant="outline" size="sm" className="flex-1" onClick={onClose}>Cancel</Button>
             <Button size="sm" className="flex-1" onClick={handleSave}>Add</Button>
           </div>
@@ -215,25 +171,106 @@ export function ERDiagramCanvasEditor() {
   const { erDiagramEditorOpen, setERDiagramEditorOpen, activeDiagram, sessionId } = useAppStore()
   const { toast } = useToast()
 
-  const initialEntities: EREntity[] = activeDiagram?.entities ?? []
-  const initialRelationships: ERRelationship[] = activeDiagram?.relationships ?? []
-
-  const [nodes, setNodes, onNodesChange] = useNodesState(entitiesToNodes(initialEntities))
-  const [edges, setEdges, onEdgesChange] = useEdgesState(relationshipsToEdges(initialRelationships))
+  const [nodes, setNodes, onNodesChange] = useNodesState([])
+  const [edges, setEdges, onEdgesChange] = useEdgesState([])
   const [saving, setSaving] = useState(false)
   const [attrDialogOpen, setAttrDialogOpen] = useState(false)
   const [targetEntityId, setTargetEntityId] = useState<string | null>(null)
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
 
-  // Sync state when opening a new diagram
+  // Build classic graph from active diagram JSON
   useEffect(() => {
-    if (erDiagramEditorOpen && activeDiagram) {
-      setNodes(entitiesToNodes(activeDiagram.entities ?? []))
-      setEdges(relationshipsToEdges(activeDiagram.relationships ?? []))
-    }
+    if (!erDiagramEditorOpen || !activeDiagram) return
+
+    const initialNodes: Node[] = []
+    const initialEdges: Edge[] = []
+    
+    const entities = activeDiagram.entities ?? []
+    const relationships = activeDiagram.relationships ?? []
+
+    entities.forEach((ent, i) => {
+      // Entity Node
+      initialNodes.push({
+        id: ent.id,
+        type: 'classicEntity',
+        position: ent.position ?? { x: 200 + i * 400, y: 300 },
+        data: { label: ent.name },
+        className: 'group',
+      })
+
+      // Attribute Nodes
+      const attrCount = ent.attributes.length
+      ent.attributes.forEach((attr, j) => {
+        const angle = (j / attrCount) * Math.PI * 2
+        const radius = 130
+        const ex = ent.position?.x ?? (200 + i * 400)
+        const ey = ent.position?.y ?? 300
+        
+        initialNodes.push({
+          id: attr.id,
+          type: 'classicAttribute',
+          position: { x: ex + Math.cos(angle) * radius, y: ey + Math.sin(angle) * radius - 20 },
+          data: { label: attr.name, isPrimary: attr.isPrimary },
+          className: 'group',
+        })
+
+        // Edge entity to attribute
+        initialEdges.push({
+          id: `e-${ent.id}-${attr.id}`,
+          source: ent.id,
+          target: attr.id,
+          type: 'straight',
+          style: { stroke: '#000', strokeWidth: 1 },
+        })
+      })
+    })
+
+    relationships.forEach((rel) => {
+      const src = entities.find(e => e.id === rel.source)
+      const tgt = entities.find(e => e.id === rel.target)
+      let rx = 400, ry = 300
+      if (src && tgt) {
+         rx = ((src.position?.x ?? 0) + (tgt.position?.x ?? 0)) / 2 + 20
+         ry = ((src.position?.y ?? 0) + (tgt.position?.y ?? 0)) / 2 - 20
+      }
+
+      initialNodes.push({
+        id: rel.id,
+        type: 'classicRelationship',
+        position: { x: rx, y: ry },
+        data: { label: rel.label ?? 'Relation' },
+        className: 'group',
+      })
+
+      const cards = rel.cardinality ? rel.cardinality.split(':') : ['1', 'N']
+      
+      initialEdges.push({
+        id: `e-${rel.source}-${rel.id}`,
+        source: rel.source,
+        target: rel.id,
+        label: cards[0],
+        type: 'straight',
+        style: { stroke: '#000', strokeWidth: 1.5 },
+        labelStyle: { fill: '#d32f2f', fontWeight: 'bold', fontSize: 14 },
+        labelBgStyle: { fill: 'transparent' }
+      })
+
+      initialEdges.push({
+        id: `e-${rel.id}-${rel.target}`,
+        source: rel.id,
+        target: rel.target,
+        label: cards[1] ?? 'N',
+        type: 'straight',
+        style: { stroke: '#000', strokeWidth: 1.5 },
+        labelStyle: { fill: '#d32f2f', fontWeight: 'bold', fontSize: 14 },
+        labelBgStyle: { fill: 'transparent' }
+      })
+    })
+
+    setNodes(initialNodes)
+    setEdges(initialEdges)
   }, [erDiagramEditorOpen, activeDiagram, setNodes, setEdges])
 
-  // Wire delete + addAttr callbacks into node data
   const deleteNode = useCallback((id: string) => {
     setNodes((ns) => ns.filter((n) => n.id !== id))
     setEdges((es) => es.filter((e) => e.source !== id && e.target !== id))
@@ -244,7 +281,7 @@ export function ERDiagramCanvasEditor() {
     setAttrDialogOpen(true)
   }, [])
 
-  // Patch callbacks into every node's data
+  // Patch callbacks into nodes dynamically so closures remain fresh
   const patchedNodes = nodes.map((n) => ({
     ...n,
     data: { ...n.data, onDelete: deleteNode, onAddAttr: openAttrDialog },
@@ -253,69 +290,108 @@ export function ERDiagramCanvasEditor() {
   const onConnect = useCallback(
     (params: Connection) =>
       setEdges((es) =>
-        addEdge(
-          {
-            ...params,
-            animated: false,
-            style: { stroke: 'hsl(221.2 83.2% 53.3%)', strokeWidth: 1.5 },
-          },
-          es
-        )
+        addEdge({ ...params, animated: false, style: { stroke: '#000', strokeWidth: 1.5 } }, es)
       ),
     [setEdges]
   )
 
-  // Add new entity
   const addEntity = () => {
     const id = generateId()
-    const name = `Entity_${nodes.length + 1}`
     setNodes((ns) => [
       ...ns,
       {
         id,
-        type: 'entity',
+        type: 'classicEntity',
         position: { x: 100 + Math.random() * 300, y: 100 + Math.random() * 200 },
-        data: { label: name, attributes: [], onDelete: deleteNode, onAddAttr: openAttrDialog },
+        data: { label: `Entity_${ns.filter(n=>n.type==='classicEntity').length + 1}` },
+        className: 'group',
       },
     ])
   }
 
-  // Save attribute to target entity
-  const saveAttribute = (attr: ERAttribute) => {
-    if (!targetEntityId) return
-    setNodes((ns) =>
-      ns.map((n) =>
-        n.id === targetEntityId
-          ? { ...n, data: { ...n.data, attributes: [...n.data.attributes, attr] } }
-          : n
-      )
-    )
+  const addRelationship = () => {
+    const id = generateId()
+    setNodes((ns) => [
+      ...ns,
+      {
+        id,
+        type: 'classicRelationship',
+        position: { x: 300 + Math.random() * 200, y: 300 + Math.random() * 100 },
+        data: { label: `Relation` },
+        className: 'group',
+      },
+    ])
   }
 
-  // Save to backend
+  const saveAttribute = (attr: ERAttribute) => {
+    if (!targetEntityId) return
+    const entityNode = nodes.find(n => n.id === targetEntityId)
+    if (!entityNode) return
+
+    const attrNodeId = attr.id
+    setNodes((ns) => [
+      ...ns,
+      {
+        id: attrNodeId,
+        type: 'classicAttribute',
+        position: { x: entityNode.position.x + 120, y: entityNode.position.y - 60 },
+        data: { label: attr.name, isPrimary: attr.isPrimary },
+        className: 'group',
+      }
+    ])
+
+    setEdges((es) => [
+      ...es,
+      {
+        id: `e-${targetEntityId}-${attrNodeId}`,
+        source: targetEntityId,
+        target: attrNodeId,
+        type: 'straight',
+        style: { stroke: '#000', strokeWidth: 1 },
+      }
+    ])
+    setAttrDialogOpen(false)
+  }
+
   const handleSave = async () => {
     setSaving(true)
     try {
-      const entities: EREntity[] = nodes.map((n) => ({
-        id: n.id,
-        name: n.data.label as string,
-        attributes: (n.data.attributes as ERAttribute[]) ?? [],
-        position: n.position,
-      }))
-      const relationships: ERRelationship[] = edges.map((e) => ({
-        id: e.id,
-        source: e.source,
-        target: e.target,
-        label: e.label as string | undefined,
-      }))
+      // Reconstruct entities from classic nodes format
+      const entities: EREntity[] = nodes.filter(n => n.type === 'classicEntity').map(n => {
+        const connectedEdges = edges.filter(e => e.source === n.id)
+        const attributes = connectedEdges
+          .map(e => nodes.find(an => an.id === e.target && an.type === 'classicAttribute'))
+          .filter((an): an is Node => Boolean(an))
+          .map(an => ({
+            id: an.id,
+            name: an.data.label,
+            type: 'VARCHAR',
+            isPrimary: an.data.isPrimary
+          }))
+        return {
+          id: n.id,
+          name: n.data.label,
+          position: n.position,
+          attributes
+        }
+      })
+      
+      const relationships: ERRelationship[] = nodes.filter(n => n.type === 'classicRelationship').map(n => {
+        const inEdge = edges.find(e => e.target === n.id)
+        const outEdge = edges.find(e => e.source === n.id)
+        return {
+          id: n.id,
+          source: inEdge?.source ?? '',
+          target: outEdge?.target ?? '',
+          label: n.data.label,
+          cardinality: `${inEdge?.label ?? '1'}:${outEdge?.label ?? 'N'}`
+        }
+      })
+
       await saveERDiagram({ entities, relationships, sessionId })
       toast({ title: 'Diagram saved', variant: 'success' })
     } catch (err) {
-      toast({
-        title: 'Save failed',
-        description: err instanceof Error ? err.message : 'Unknown error',
-        variant: 'destructive',
-      })
+      toast({ title: 'Save failed', description: err instanceof Error ? err.message : 'Unknown error', variant: 'destructive' })
     } finally {
       setSaving(false)
     }
@@ -324,17 +400,37 @@ export function ERDiagramCanvasEditor() {
   // Export as SVG/PNG/JSON
   const handleExport = async (format: 'svg' | 'png' | 'json') => {
     try {
-      const entities: EREntity[] = nodes.map((n) => ({
-        id: n.id,
-        name: n.data.label as string,
-        attributes: (n.data.attributes as ERAttribute[]) ?? [],
-        position: n.position,
-      }))
-      const relationships: ERRelationship[] = edges.map((e) => ({
-        id: e.id,
-        source: e.source,
-        target: e.target,
-      }))
+      const entities: EREntity[] = nodes.filter(n => n.type === 'classicEntity').map(n => {
+        const connectedEdges = edges.filter(e => e.source === n.id)
+        const attributes = connectedEdges
+          .map(e => nodes.find(an => an.id === e.target && an.type === 'classicAttribute'))
+          .filter((an): an is Node => Boolean(an))
+          .map(an => ({
+            id: an.id,
+            name: an.data.label,
+            type: 'VARCHAR',
+            isPrimary: an.data.isPrimary
+          }))
+        return {
+          id: n.id,
+          name: n.data.label,
+          position: n.position,
+          attributes
+        }
+      })
+      
+      const relationships: ERRelationship[] = nodes.filter(n => n.type === 'classicRelationship').map(n => {
+        const inEdge = edges.find(e => e.target === n.id)
+        const outEdge = edges.find(e => e.source === n.id)
+        return {
+          id: n.id,
+          source: inEdge?.source ?? '',
+          target: outEdge?.target ?? '',
+          label: n.data.label,
+          cardinality: `${inEdge?.label ?? '1'}:${outEdge?.label ?? 'N'}`
+        }
+      })
+      
       const blob = await exportERDiagram({ entities, relationships, format })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -354,38 +450,35 @@ export function ERDiagramCanvasEditor() {
 
   return (
     <>
-      {/* Full-screen overlay with smooth transition */}
       <div 
         className={cn(
           "fixed inset-0 z-50 flex flex-col transition-all duration-300 ease-out bg-background/95 backdrop-blur-md",
-          erDiagramEditorOpen 
-            ? "opacity-100 pointer-events-auto scale-100" 
-            : "opacity-0 pointer-events-none scale-[0.98]"
+          erDiagramEditorOpen ? "opacity-100 pointer-events-auto scale-100" : "opacity-0 pointer-events-none scale-[0.98]"
         )}
       >
-        {/* Toolbar */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card/60 backdrop-blur-md shrink-0 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center">
+            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
               <Tag className="h-3.5 w-3.5 text-white" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold">ER Diagram Editor</h2>
+              <h2 className="text-sm font-semibold">Classic ER Diagram Editor</h2>
               <p className="text-[10px] text-muted-foreground">
-                Drag to move · Connect handles to create relationships · Double-click to rename
+                Drag handles to connect nodes · Hover over nodes to delete or add attributes
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Add entity */}
             <Button size="sm" variant="outline" onClick={addEntity} className="gap-1.5 h-8">
-              <Plus className="h-3.5 w-3.5" />
-              Add Entity
+              <Plus className="h-3.5 w-3.5" /> Entity
             </Button>
-
+            <Button size="sm" variant="outline" onClick={addRelationship} className="gap-1.5 h-8">
+              <Plus className="h-3.5 w-3.5" /> Relation
+            </Button>
+            
             {/* Export menu */}
-            <div className="flex items-center gap-1 border border-border rounded-lg overflow-hidden">
+            <div className="flex items-center gap-1 border border-border rounded-lg overflow-hidden ml-2">
               {(['svg', 'png', 'json'] as const).map((fmt) => (
                 <button
                   key={fmt}
@@ -397,23 +490,15 @@ export function ERDiagramCanvasEditor() {
               ))}
             </div>
 
-            <Button size="sm" onClick={handleSave} disabled={saving} className="gap-1.5 h-8">
-              <Save className="h-3.5 w-3.5" />
-              {saving ? 'Saving…' : 'Save'}
+            <Button size="sm" onClick={handleSave} disabled={saving} className="gap-1.5 h-8 ml-2">
+              <Save className="h-3.5 w-3.5" /> {saving ? 'Saving…' : 'Save'}
             </Button>
-
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8 rounded-lg"
-              onClick={() => setERDiagramEditorOpen(false)}
-            >
+            <Button size="icon" variant="ghost" className="h-8 w-8 rounded-lg ml-1" onClick={() => setERDiagramEditorOpen(false)}>
               <X className="h-4 w-4" />
             </Button>
           </div>
         </div>
 
-        {/* Canvas */}
         <div ref={reactFlowWrapper} className="flex-1 relative bg-gradient-to-br from-background via-background/90 to-muted/50">
           <ReactFlow
             nodes={patchedNodes}
@@ -429,33 +514,20 @@ export function ERDiagramCanvasEditor() {
           >
             <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} color="hsl(var(--muted-foreground) / 0.2)" />
             <Controls className="!bg-card !border-border !shadow-sm" />
-            <MiniMap
-              nodeColor={() => 'hsl(221.2 83.2% 53.3%)'}
-              maskColor="hsl(var(--background) / 0.6)"
-              className="!border-border !rounded-xl !bg-card/50 !backdrop-blur-sm"
-            />
             <Panel position="bottom-center">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-card/80 backdrop-blur-sm border border-border text-xs text-muted-foreground shadow">
-                <span>{nodes.length} entities</span>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/80 backdrop-blur-sm border border-border text-xs text-muted-foreground shadow-lg">
+                <span>{nodes.filter(n=>n.type==='classicEntity').length} entities</span>
                 <span>·</span>
-                <span>{edges.length} relationships</span>
+                <span>{nodes.filter(n=>n.type==='classicRelationship').length} relationships</span>
                 <span>·</span>
-                <span className="flex items-center gap-1">
-                  <Trash2 className="h-3 w-3" />
-                  Del to delete selected
-                </span>
+                <span>{nodes.filter(n=>n.type==='classicAttribute').length} attributes</span>
               </div>
             </Panel>
           </ReactFlow>
         </div>
       </div>
 
-      {/* Attribute dialog */}
-      <AttrDialog
-        open={attrDialogOpen}
-        onClose={() => setAttrDialogOpen(false)}
-        onSave={saveAttribute}
-      />
+      <AttrDialog open={attrDialogOpen} onClose={() => setAttrDialogOpen(false)} onSave={saveAttribute} />
     </>
   )
 }
