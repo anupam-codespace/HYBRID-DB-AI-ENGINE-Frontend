@@ -28,6 +28,12 @@ function ERDiagramPreviewInline({ message }: { message: Message }) {
             className="w-full"
             dangerouslySetInnerHTML={{ __html: diagram.data }}
           />
+        ) : diagram.type === 'json' ? (
+          <div className="w-full h-32 flex flex-col items-center justify-center text-muted-foreground gap-2">
+            <ZoomIn className="h-8 w-8 opacity-50" />
+            <span className="text-sm font-medium">Interactive Diagram Generated</span>
+            <span className="text-xs">Click Edit to view and modify</span>
+          </div>
         ) : (
           <img
             src={
