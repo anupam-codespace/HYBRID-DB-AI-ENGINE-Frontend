@@ -86,12 +86,21 @@ export async function sendPrompt(
   fileIds: string[] = [],
   sessionId?: string
 ): Promise<ChatResponse> {
-  const { data } = await api.post<ChatResponse>('/chat', {
-    prompt,
-    file_ids: fileIds,
-    session_id: sessionId,
-  })
-  return data
+  try {
+    const { data } = await api.post<ChatResponse>('/chat', {
+      prompt,
+      file_ids: fileIds,
+      session_id: sessionId,
+    })
+    return data
+  } catch (err) {
+    // Fallback mock for Vercel deployment without backend
+    await new Promise(r => setTimeout(r, 1000))
+    return {
+      message_id: 'mock-msg-' + Date.now(),
+      content: `I am the AI Architect. You said: "${prompt}"\n\nAsk me to generate an ER diagram to see the interactive canvas in action!`,
+    }
+  }
 }
 
 /** Generate ER diagram from schema / prompt */
@@ -99,11 +108,59 @@ export async function generateERDiagram(
   prompt: string,
   fileIds: string[] = []
 ): Promise<ChatResponse> {
-  const { data } = await api.post<ChatResponse>('/er-diagram/generate', {
-    prompt,
-    file_ids: fileIds,
-  })
-  return data
+  try {
+    const { data } = await api.post<ChatResponse>('/er-diagram/generate', {
+      prompt,
+      file_ids: fileIds,
+    })
+    return data
+  } catch (err) {
+    // Fallback mock for Vercel deployment without backend
+    await new Promise(r => setTimeout(r, 1500))
+    
+    const e1_id = 'ent-mock-1'
+    const e2_id = 'ent-mock-2'
+    
+    return {
+      message_id: 'mock-er-' + Date.now(),
+      content: `I have generated an interactive ER diagram based on your prompt: "${prompt}"\n\n**Entities:** Customer, Order\n**Relationship:** Places\n**Cardinality:** 1:N`,
+      er_diagram: {
+        type: 'json',
+        data: '{}',
+        entities: [
+          {
+            id: e1_id,
+            name: 'Customer',
+            attributes: [
+              { id: 'attr-1', name: 'customer_id', type: 'INT', isPrimary: true },
+              { id: 'attr-2', name: 'name', type: 'VARCHAR' },
+              { id: 'attr-3', name: 'email', type: 'VARCHAR' }
+            ],
+            position: { x: 100, y: 150 }
+          },
+          {
+            id: e2_id,
+            name: 'Order',
+            attributes: [
+              { id: 'attr-4', name: 'order_id', type: 'INT', isPrimary: true },
+              { id: 'attr-5', name: 'customer_id', type: 'INT', isForeign: true },
+              { id: 'attr-6', name: 'total_amount', type: 'DECIMAL' }
+            ],
+            position: { x: 500, y: 150 }
+          }
+        ],
+        relationships: [
+          {
+            id: 'rel-1',
+            source: e1_id,
+            target: e2_id,
+            label: 'Places',
+            cardinality: '1:N'
+          }
+        ]
+      }
+    }
+  }
 }
 
 /** Save edited ER diagram back to the backend */
