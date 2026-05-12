@@ -1,4 +1,23 @@
 import { useState, useRef, useEffect, useCallback, type KeyboardEvent } from 'react'
+
+// ─── Web Speech API type shim (not in default TS lib) ────────────────────────
+declare global {
+  interface Window {
+    SpeechRecognition: new () => ISpeechRecognition
+    webkitSpeechRecognition: new () => ISpeechRecognition
+  }
+}
+interface ISpeechRecognition extends EventTarget {
+  lang: string
+  interimResults: boolean
+  maxAlternatives: number
+  start(): void
+  stop(): void
+  onstart: (() => void) | null
+  onend: (() => void) | null
+  onerror: ((e: { error: string }) => void) | null
+  onresult: ((e: { results: { [k: number]: { [k: number]: { transcript: string } } } }) => void) | null
+}
 import { Send, Sparkles, X, Mic, MicOff, ChevronDown, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -100,7 +119,7 @@ function ModelSelector() {
 
 function MicButton({ onTranscript }: { onTranscript: (text: string) => void }) {
   const [listening, setListening] = useState(false)
-  const recognitionRef = useRef<SpeechRecognition | null>(null)
+  const recognitionRef = useRef<ISpeechRecognition | null>(null)
   const { toast } = useToast()
 
   const supported =
@@ -115,7 +134,7 @@ function MicButton({ onTranscript }: { onTranscript: (text: string) => void }) {
 
     const SRClass =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-    const recognition: SpeechRecognition = new SRClass()
+    const recognition: ISpeechRecognition = new SRClass()
     recognition.lang = 'en-US'
     recognition.interimResults = false
     recognition.maxAlternatives = 1
