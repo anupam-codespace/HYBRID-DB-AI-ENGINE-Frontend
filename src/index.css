@@ -180,6 +180,56 @@ body {
   box-shadow: 0 0 0 2px hsl(221.2 83.2% 53.3%);
 }
 
+/* ─── Mobile sticky input bar ─────────────────────────────────────────────── */
+
+/* Glass blur background for the fixed bottom bar on mobile */
+.chat-input-mobile-bar {
+  background: hsl(0 0% 100% / 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid hsl(0 0% 100% / 0.3);
+  /* safe area for phones with home indicator */
+  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+}
+.dark .chat-input-mobile-bar {
+  background: hsl(230 25% 10% / 0.82);
+  border-top: 1px solid hsl(230 20% 100% / 0.08);
+}
+
+/* On desktop the bar is not fixed – reset glass */
+@media (min-width: 640px) {
+  .chat-input-mobile-bar {
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-top: none;
+    padding-bottom: 1.5rem;
+  }
+  .dark .chat-input-mobile-bar {
+    background: transparent;
+    border-top: none;
+  }
+}
+
+/* Desktop: use longer placeholder via attr trick */
+@media (min-width: 640px) {
+  #chat-input::placeholder {
+    content: attr(data-placeholder-desktop);
+  }
+  /* Override placeholder text on desktop */
+  #chat-input {
+    /* We set the correct longer placeholder via JS below;
+       on desktop just restore normal font size */
+    font-size: 15px;
+  }
+}
+
+/* Model selector pill – compact on mobile */
+@media (max-width: 639px) {
+  #model-selector-btn span {
+    max-width: 130px;
+  }
+}
 /* ─── Animated gradient background ─────────────────────────────────────────── */
 
 @keyframes bg-shift {

@@ -75,8 +75,8 @@ interface AppState {
   setIsGenerating: (v: boolean) => void
 
   // Model selection
-  selectedModel: 'hybrid' | 'er'
-  setSelectedModel: (model: 'hybrid' | 'er') => void
+  selectedModel: 'hybrid' | 'er' | null
+  setSelectedModel: (model: 'hybrid' | 'er' | null) => void
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -141,6 +141,6 @@ export const useAppStore = create<AppState>((set) => ({
   setIsGenerating: (v) => set({ isGenerating: v }),
 
   // Model selection
-  selectedModel: 'hybrid',
+  selectedModel: null,
   setSelectedModel: (model) => set({ selectedModel: model }),
 }))

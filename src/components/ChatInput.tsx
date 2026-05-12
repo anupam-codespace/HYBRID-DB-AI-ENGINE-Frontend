@@ -31,8 +31,8 @@ import { cn } from '@/lib/utils'
 // ─── Model Options ────────────────────────────────────────────────────────────
 
 const MODEL_OPTIONS = [
-  { value: 'hybrid', label: 'Hybrid Database Model' },
   { value: 'er',     label: 'ER Model' },
+  { value: 'hybrid', label: 'Hybrid Database Model' },
 ] as const
 
 type ModelValue = typeof MODEL_OPTIONS[number]['value']
@@ -55,7 +55,8 @@ function ModelSelector() {
     return () => document.removeEventListener('mousedown', onOutsideClick)
   }, [])
 
-  const current = MODEL_OPTIONS.find((o) => o.value === selectedModel) ?? MODEL_OPTIONS[0]
+  const current = MODEL_OPTIONS.find((o) => o.value === selectedModel)
+  const label = current?.label ?? 'Select model'
 
   return (
     <div ref={wrapperRef} className="relative">
@@ -65,12 +66,13 @@ function ModelSelector() {
         className={cn(
           'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all select-none',
           'bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/60',
-          open && 'bg-muted text-foreground'
+          open && 'bg-muted text-foreground',
+          !current && 'text-muted-foreground/70'
         )}
         aria-haspopup="listbox"
         aria-expanded={open}
       >
-        <span className="max-w-[160px] truncate">{current.label}</span>
+        <span className="max-w-[160px] truncate">{label}</span>
         <ChevronDown
           className={cn('h-3 w-3 flex-shrink-0 transition-transform duration-200', open && 'rotate-180')}
         />
@@ -306,21 +308,22 @@ export function ChatInput() {
           </div>
         )}
 
-        <div className="flex items-end gap-3 px-4 py-3">
-          <div className="flex-shrink-0 pb-1 pl-1">
+        <div className="flex items-end gap-2 sm:gap-3 px-2 sm:px-4 py-2 sm:py-3">
+          <div className="flex-shrink-0 pb-0.5">
             <FileUploadButton />
           </div>
 
           <Textarea
             ref={textareaRef}
             id="chat-input"
-            placeholder="Describe your data model or ask a query..."
+            placeholder="Ask a query..."
+            data-placeholder-desktop="Describe your data model or ask a query..."
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={isGenerating}
             rows={1}
-            className="flex-1 border-0 bg-transparent shadow-none focus-visible:ring-0 p-2 min-h-[44px] max-h-[200px] text-[15px] resize-none"
+            className="flex-1 border-0 bg-transparent shadow-none focus-visible:ring-0 p-1.5 sm:p-2 min-h-[40px] sm:min-h-[44px] max-h-[200px] text-[14px] sm:text-[15px] resize-none placeholder:text-sm"
           />
 
           {/* Mic Button */}
@@ -333,21 +336,21 @@ export function ChatInput() {
             disabled={!text.trim() || isGenerating}
             onClick={handleSend}
             className={cn(
-              'flex-shrink-0 h-10 w-10 rounded-full transition-all bg-transparent hover:bg-muted text-muted-foreground mb-0.5',
+              'flex-shrink-0 h-9 w-9 sm:h-10 sm:w-10 rounded-full transition-all bg-transparent hover:bg-muted text-muted-foreground mb-0.5',
               text.trim() && !isGenerating && 'text-primary'
             )}
           >
             {isGenerating ? (
-              <Sparkles className="h-5 w-5 animate-spin" />
+              <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
             ) : (
-              <Send className="h-5 w-5" />
+              <Send className="h-4 w-4 sm:h-5 sm:w-5" />
             )}
           </Button>
         </div>
       </div>
 
       {/* Bottom toolbar: Model selector */}
-      <div className="flex items-center gap-2 px-2">
+      <div className="flex items-center gap-2 px-2 mt-1">
         <ModelSelector />
       </div>
     </div>
