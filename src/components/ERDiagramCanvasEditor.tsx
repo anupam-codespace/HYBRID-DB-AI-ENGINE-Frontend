@@ -28,7 +28,7 @@ import { generateId, cn } from '@/lib/utils'
 
 function ClassicEntityNode({ id, data }: { id: string; data: any }) {
   return (
-    <div className="relative bg-[#74b84b] border-[1.5px] border-black min-w-[120px] px-6 py-3 font-bold text-black text-center shadow-sm">
+    <div className="relative bg-white border-2 border-black min-w-[120px] px-6 py-3 font-bold text-black text-center shadow-none">
       <Handle type="target" position={Position.Top} className="opacity-0" />
       <Handle type="source" position={Position.Bottom} className="opacity-0" />
       <Handle type="source" position={Position.Left} className="opacity-0" />
@@ -54,7 +54,7 @@ function ClassicEntityNode({ id, data }: { id: string; data: any }) {
 
 function ClassicRelationshipNode({ id, data }: { id: string; data: any }) {
   return (
-    <div className="relative bg-[#ff9b21] border-[1.5px] border-black w-24 h-24 flex items-center justify-center font-bold text-black transform rotate-45 shadow-sm">
+    <div className="relative bg-white border-2 border-black w-24 h-24 flex items-center justify-center font-bold text-black transform rotate-45 shadow-none">
       <div className="transform -rotate-45">{data.label}</div>
       <Handle type="target" position={Position.Top} className="opacity-0" />
       <Handle type="source" position={Position.Bottom} className="opacity-0" />
@@ -73,7 +73,10 @@ function ClassicRelationshipNode({ id, data }: { id: string; data: any }) {
 
 function ClassicAttributeNode({ id, data }: { id: string; data: any }) {
   return (
-    <div className="relative bg-[#48d1cc] border-[1.5px] border-black rounded-[50%] px-4 py-2 font-semibold text-black text-xs text-center shadow-sm min-w-[70px]">
+    <div className={cn(
+      "relative bg-white rounded-[50%] px-4 py-2 font-bold text-black text-xs text-center shadow-none min-w-[80px]",
+      data.isMultiValued ? "border-[4px] border-double border-black" : "border-2 border-black"
+    )}>
       <Handle type="target" position={Position.Top} className="opacity-0" />
       <Handle type="source" position={Position.Bottom} className="opacity-0" />
       <Handle type="source" position={Position.Left} className="opacity-0" />
@@ -210,7 +213,7 @@ export function ERDiagramCanvasEditor() {
           id: attr.id,
           type: 'classicAttribute',
           position: { x: ex + Math.cos(angle) * radius, y: ey + Math.sin(angle) * radius - 20 },
-          data: { label: attr.name, isPrimary: attr.isPrimary },
+          data: { label: attr.name, isPrimary: attr.isPrimary, isMultiValued: attr.isMultiValued },
           className: 'group',
         })
 
@@ -248,22 +251,16 @@ export function ERDiagramCanvasEditor() {
         id: `e-${rel.source}-${rel.id}`,
         source: rel.source,
         target: rel.id,
-        label: cards[0],
         type: 'straight',
         style: { stroke: '#000', strokeWidth: 1.5 },
-        labelStyle: { fill: '#d32f2f', fontWeight: 'bold', fontSize: 14 },
-        labelBgStyle: { fill: 'transparent' }
       })
 
       initialEdges.push({
         id: `e-${rel.id}-${rel.target}`,
         source: rel.id,
         target: rel.target,
-        label: cards[1] ?? 'N',
         type: 'straight',
         style: { stroke: '#000', strokeWidth: 1.5 },
-        labelStyle: { fill: '#d32f2f', fontWeight: 'bold', fontSize: 14 },
-        labelBgStyle: { fill: 'transparent' }
       })
     })
 
@@ -366,7 +363,8 @@ export function ERDiagramCanvasEditor() {
             id: an.id,
             name: an.data.label,
             type: 'VARCHAR',
-            isPrimary: an.data.isPrimary
+            isPrimary: an.data.isPrimary,
+            isMultiValued: an.data.isMultiValued
           }))
         return {
           id: n.id,
@@ -409,7 +407,8 @@ export function ERDiagramCanvasEditor() {
             id: an.id,
             name: an.data.label,
             type: 'VARCHAR',
-            isPrimary: an.data.isPrimary
+            isPrimary: an.data.isPrimary,
+            isMultiValued: an.data.isMultiValued
           }))
         return {
           id: n.id,
@@ -499,7 +498,7 @@ export function ERDiagramCanvasEditor() {
           </div>
         </div>
 
-        <div ref={reactFlowWrapper} className="flex-1 relative bg-gradient-to-br from-background via-background/90 to-muted/50">
+        <div ref={reactFlowWrapper} className="flex-1 relative bg-white">
           <ReactFlow
             nodes={patchedNodes}
             edges={edges}
@@ -512,8 +511,8 @@ export function ERDiagramCanvasEditor() {
             deleteKeyCode="Delete"
             proOptions={{ hideAttribution: true }}
           >
-            <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} color="hsl(var(--muted-foreground) / 0.2)" />
-            <Controls className="!bg-card !border-border !shadow-sm" />
+            <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="#e5e5e5" />
+            <Controls className="!bg-white !border-black !shadow-sm" />
             <Panel position="bottom-center">
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/80 backdrop-blur-sm border border-border text-xs text-muted-foreground shadow-lg">
                 <span>{nodes.filter(n=>n.type==='classicEntity').length} entities</span>
