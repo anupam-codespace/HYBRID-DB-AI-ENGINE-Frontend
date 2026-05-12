@@ -179,3 +179,176 @@ body {
 .react-flow__node.selected {
   box-shadow: 0 0 0 2px hsl(221.2 83.2% 53.3%);
 }
+
+/* ─── Animated gradient background ─────────────────────────────────────────── */
+
+@keyframes bg-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes orb-drift-1 {
+  0%   { transform: translate(0px,   0px)   scale(1); }
+  33%  { transform: translate(60px,  -80px) scale(1.15); }
+  66%  { transform: translate(-40px, 60px)  scale(0.9); }
+  100% { transform: translate(0px,   0px)   scale(1); }
+}
+@keyframes orb-drift-2 {
+  0%   { transform: translate(0px, 0px)    scale(1); }
+  33%  { transform: translate(-70px, 50px) scale(1.2); }
+  66%  { transform: translate(50px, -40px) scale(0.85); }
+  100% { transform: translate(0px, 0px)    scale(1); }
+}
+@keyframes orb-drift-3 {
+  0%   { transform: translate(0px,   0px)  scale(1); }
+  50%  { transform: translate(40px,  80px) scale(1.1); }
+  100% { transform: translate(0px,   0px)  scale(1); }
+}
+
+.app-bg-wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Light theme gradient */
+.app-bg-gradient {
+  position: absolute;
+  inset: 0;
+  background: #f8f9ff;
+}
+.app-bg-gradient::before,
+.app-bg-gradient::after,
+.app-bg-gradient > * {
+  display: none;
+}
+
+/* We build the orbs as pseudo-elements on the wrapper itself */
+.app-bg-wrapper::before,
+.app-bg-wrapper::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.35;
+}
+
+/* Orb 1 – blue-purple */
+.app-bg-wrapper::before {
+  width: 55vw;
+  height: 55vw;
+  top: -10%;
+  left: -8%;
+  background: radial-gradient(circle, hsl(220 95% 65%), hsl(260 90% 70%));
+  animation: orb-drift-1 18s ease-in-out infinite;
+}
+
+/* Orb 2 – teal-green */
+.app-bg-wrapper::after {
+  width: 45vw;
+  height: 45vw;
+  bottom: -12%;
+  right: -5%;
+  background: radial-gradient(circle, hsl(175 80% 55%), hsl(145 70% 60%));
+  animation: orb-drift-2 22s ease-in-out infinite;
+}
+
+/* Orb 3 – pink-orange (extra span inside wrapper) */
+.app-bg-gradient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.app-bg-gradient::before {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.28;
+  width: 40vw;
+  height: 40vw;
+  top: 40%;
+  left: 35%;
+  background: radial-gradient(circle, hsl(330 90% 70%), hsl(15 95% 65%));
+  animation: orb-drift-3 26s ease-in-out infinite;
+}
+
+/* Dark theme overrides */
+.dark .app-bg-wrapper {
+  background: #0c0c11;
+}
+.dark .app-bg-wrapper::before {
+  background: radial-gradient(circle, hsl(220 80% 45%), hsl(260 75% 40%));
+  opacity: 0.5;
+}
+.dark .app-bg-wrapper::after {
+  background: radial-gradient(circle, hsl(175 70% 35%), hsl(145 60% 35%));
+  opacity: 0.4;
+}
+.dark .app-bg-gradient::before {
+  background: radial-gradient(circle, hsl(330 70% 40%), hsl(15 80% 40%));
+  opacity: 0.35;
+}
+
+/* ─── App shell – sits above the gradient layer ─────────────────────────────── */
+
+.app-shell {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+}
+
+/* Make the main content areas semi-transparent so gradient shows through */
+.app-shell header {
+  background: hsl(0 0% 100% / 0.55) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid hsl(0 0% 100% / 0.25);
+}
+.dark .app-shell header {
+  background: hsl(222 30% 8% / 0.65) !important;
+  border-bottom: 1px solid hsl(0 0% 100% / 0.08);
+}
+
+/* Chat area transparent */
+.app-shell main {
+  background: transparent !important;
+}
+
+/* Make bg-background transparent in the shell */
+.app-shell .bg-background {
+  background: transparent !important;
+}
+
+/* Secondary (input box) stays readable – slightly translucent */
+.app-shell .bg-secondary {
+  background: hsl(210 40% 96.1% / 0.8) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.dark .app-shell .bg-secondary {
+  background: hsl(217 30% 15% / 0.75) !important;
+}
+
+/* Sidebar glass */
+.app-shell aside {
+  background: hsl(0 0% 100% / 0.6) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.dark .app-shell aside {
+  background: hsl(222 30% 10% / 0.7) !important;
+}
+
+/* Card glass */
+.app-shell .bg-card {
+  background: hsl(0 0% 100% / 0.6) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.dark .app-shell .bg-card {
+  background: hsl(222 30% 12% / 0.7) !important;
+}
+

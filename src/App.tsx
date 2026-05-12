@@ -17,7 +17,12 @@ export default function App() {
 
   return (
     <TooltipProvider delayDuration={300}>
-      <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground">
+      {/* Animated gradient background */}
+      <div className="app-bg-wrapper">
+        <div className="app-bg-gradient" aria-hidden="true" />
+      </div>
+
+      <div className="flex flex-col h-screen overflow-hidden text-foreground app-shell">
         <Header />
 
         <div className="flex flex-1 overflow-hidden relative">

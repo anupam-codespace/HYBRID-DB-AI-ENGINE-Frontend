@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect, type KeyboardEvent } from 'react'
-import { Send, Sparkles, X } from 'lucide-react'
+import { useState, useRef, useEffect, useCallback, type KeyboardEvent } from 'react'
+import { Send, Sparkles, X, Mic, MicOff, ChevronDown, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { FileUploadButton, FileIcon } from '@/components/FileUploadButton'
@@ -9,6 +9,165 @@ import { useToast } from '@/components/ui/toast'
 import { formatFileSize } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
+// ─── Model Options ────────────────────────────────────────────────────────────
+
+const MODEL_OPTIONS = [
+  { value: 'hybrid', label: 'Hybrid Database Model' },
+  { value: 'er',     label: 'ER Model' },
+] as const
+
+type ModelValue = typeof MODEL_OPTIONS[number]['value']
+
+// ─── Model Selector Dropdown ──────────────────────────────────────────────────
+
+function ModelSelector() {
+  const { selectedModel, setSelectedModel } = useAppStore()
+  const [open, setOpen] = useState(false)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+
+  // close on outside click
+  useEffect(() => {
+    function onOutsideClick(e: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', onOutsideClick)
+    return () => document.removeEventListener('mousedown', onOutsideClick)
+  }, [])
+
+  const current = MODEL_OPTIONS.find((o) => o.value === selectedModel) ?? MODEL_OPTIONS[0]
+
+  return (
+    <div ref={wrapperRef} className="relative">
+      <button
+        id="model-selector-btn"
+        onClick={() => setOpen((v) => !v)}
+        className={cn(
+          'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all select-none',
+          'bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/60',
+          open && 'bg-muted text-foreground'
+        )}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+      >
+        <span className="max-w-[160px] truncate">{current.label}</span>
+        <ChevronDown
+          className={cn('h-3 w-3 flex-shrink-0 transition-transform duration-200', open && 'rotate-180')}
+        />
+      </button>
+
+      {open && (
+        <div
+          className={cn(
+            'absolute bottom-full left-0 mb-2 w-52 rounded-2xl border border-border bg-card shadow-xl z-50',
+            'animate-fade-in overflow-hidden'
+          )}
+          role="listbox"
+        >
+          <div className="px-3 pt-3 pb-1">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Select model
+            </p>
+          </div>
+          {MODEL_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              role="option"
+              aria-selected={selectedModel === opt.value}
+              onClick={() => {
+                setSelectedModel(opt.value as ModelValue)
+                setOpen(false)
+              }}
+              className={cn(
+                'w-full flex items-center justify-between gap-2 px-3 py-2.5 text-sm transition-colors',
+                'hover:bg-muted/70 text-left',
+                selectedModel === opt.value ? 'text-primary font-medium' : 'text-foreground'
+              )}
+            >
+              <span>{opt.label}</span>
+              {selectedModel === opt.value && <Check className="h-3.5 w-3.5 flex-shrink-0 text-primary" />}
+            </button>
+          ))}
+          <div className="h-2" />
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Mic Button (Web Speech API) ──────────────────────────────────────────────
+
+function MicButton({ onTranscript }: { onTranscript: (text: string) => void }) {
+  const [listening, setListening] = useState(false)
+  const recognitionRef = useRef<SpeechRecognition | null>(null)
+  const { toast } = useToast()
+
+  const supported =
+    typeof window !== 'undefined' &&
+    ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
+
+  const startListening = useCallback(() => {
+    if (!supported) {
+      toast({ title: 'Not supported', description: 'Speech recognition is not available in this browser.', variant: 'destructive' })
+      return
+    }
+
+    const SRClass =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    const recognition: SpeechRecognition = new SRClass()
+    recognition.lang = 'en-US'
+    recognition.interimResults = false
+    recognition.maxAlternatives = 1
+    recognitionRef.current = recognition
+
+    recognition.onstart = () => setListening(true)
+    recognition.onend = () => setListening(false)
+    recognition.onerror = (e) => {
+      setListening(false)
+      if (e.error !== 'no-speech' && e.error !== 'aborted') {
+        toast({ title: 'Mic error', description: e.error, variant: 'destructive' })
+      }
+    }
+    recognition.onresult = (e) => {
+      const transcript = e.results[0][0].transcript
+      onTranscript(transcript)
+    }
+
+    recognition.start()
+  }, [supported, onTranscript, toast])
+
+  const stopListening = useCallback(() => {
+    recognitionRef.current?.stop()
+    setListening(false)
+  }, [])
+
+  const toggleMic = () => {
+    if (listening) stopListening()
+    else startListening()
+  }
+
+  return (
+    <Button
+      id="mic-btn"
+      type="button"
+      variant="ghost"
+      size="icon"
+      onClick={toggleMic}
+      aria-label={listening ? 'Stop recording' : 'Start voice input'}
+      className={cn(
+        'flex-shrink-0 h-10 w-10 rounded-full transition-all mb-0.5',
+        listening
+          ? 'text-red-500 bg-red-500/10 animate-pulse-glow'
+          : 'bg-transparent hover:bg-muted text-muted-foreground hover:text-foreground'
+      )}
+    >
+      {listening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+    </Button>
+  )
+}
+
+// ─── Main Chat Input ──────────────────────────────────────────────────────────
 
 export function ChatInput() {
   const [text, setText] = useState('')
@@ -79,10 +238,14 @@ export function ChatInput() {
     }
   }
 
-  const isEmpty = messages.length === 0
+  // Append transcript to existing text
+  const handleTranscript = (transcript: string) => {
+    setText((prev) => (prev ? prev + ' ' + transcript : transcript))
+    textareaRef.current?.focus()
+  }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-2">
 
       {/* Input area */}
       <div
@@ -141,6 +304,10 @@ export function ChatInput() {
             className="flex-1 border-0 bg-transparent shadow-none focus-visible:ring-0 p-2 min-h-[44px] max-h-[200px] text-[15px] resize-none"
           />
 
+          {/* Mic Button */}
+          <MicButton onTranscript={handleTranscript} />
+
+          {/* Send Button */}
           <Button
             id="send-btn"
             size="icon"
@@ -158,6 +325,11 @@ export function ChatInput() {
             )}
           </Button>
         </div>
+      </div>
+
+      {/* Bottom toolbar: Model selector */}
+      <div className="flex items-center gap-2 px-2">
+        <ModelSelector />
       </div>
     </div>
   )
