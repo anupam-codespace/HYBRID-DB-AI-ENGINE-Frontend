@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useRef, useState, useEffect } from 'react'
 import ReactFlow, {
   Background,
   Controls,
@@ -224,6 +224,14 @@ export function ERDiagramCanvasEditor() {
   const [attrDialogOpen, setAttrDialogOpen] = useState(false)
   const [targetEntityId, setTargetEntityId] = useState<string | null>(null)
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
+
+  // Sync state when opening a new diagram
+  useEffect(() => {
+    if (erDiagramEditorOpen && activeDiagram) {
+      setNodes(entitiesToNodes(activeDiagram.entities ?? []))
+      setEdges(relationshipsToEdges(activeDiagram.relationships ?? []))
+    }
+  }, [erDiagramEditorOpen, activeDiagram, setNodes, setEdges])
 
   // Wire delete + addAttr callbacks into node data
   const deleteNode = useCallback((id: string) => {
