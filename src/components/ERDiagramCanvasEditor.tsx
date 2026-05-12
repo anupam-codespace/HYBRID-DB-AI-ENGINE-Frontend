@@ -184,8 +184,8 @@ function AttrDialog({
           </div>
           <div className="flex gap-4">
             {[
-              { label: '🔑 Primary Key', state: isPrimary, set: setIsPrimary },
-              { label: '🔗 Foreign Key', state: isForeign, set: setIsForeign },
+              { label: 'Primary Key', state: isPrimary, set: setIsPrimary },
+              { label: 'Foreign Key', state: isForeign, set: setIsForeign },
               { label: 'Nullable', state: isNullable, set: setIsNullable },
             ].map(({ label, state, set }) => (
               <label key={label} className="flex items-center gap-1.5 text-xs cursor-pointer">
@@ -352,14 +352,19 @@ export function ERDiagramCanvasEditor() {
     }
   }
 
-  if (!erDiagramEditorOpen) return null
-
   return (
     <>
-      {/* Full-screen overlay */}
-      <div className="fixed inset-0 z-50 flex flex-col bg-background">
+      {/* Full-screen overlay with smooth transition */}
+      <div 
+        className={cn(
+          "fixed inset-0 z-50 flex flex-col transition-all duration-300 ease-out bg-background/95 backdrop-blur-md",
+          erDiagramEditorOpen 
+            ? "opacity-100 pointer-events-auto scale-100" 
+            : "opacity-0 pointer-events-none scale-[0.98]"
+        )}
+      >
         {/* Toolbar */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card/80 backdrop-blur-sm shrink-0">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card/60 backdrop-blur-md shrink-0 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center">
               <Tag className="h-3.5 w-3.5 text-white" />
@@ -409,7 +414,7 @@ export function ERDiagramCanvasEditor() {
         </div>
 
         {/* Canvas */}
-        <div ref={reactFlowWrapper} className="flex-1">
+        <div ref={reactFlowWrapper} className="flex-1 relative bg-gradient-to-br from-background via-background/90 to-muted/50">
           <ReactFlow
             nodes={patchedNodes}
             edges={edges}
@@ -422,12 +427,12 @@ export function ERDiagramCanvasEditor() {
             deleteKeyCode="Delete"
             proOptions={{ hideAttribution: true }}
           >
-            <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
-            <Controls />
+            <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} color="hsl(var(--muted-foreground) / 0.2)" />
+            <Controls className="!bg-card !border-border !shadow-sm" />
             <MiniMap
               nodeColor={() => 'hsl(221.2 83.2% 53.3%)'}
-              maskColor="hsl(222.2 84% 4.9% / 0.5)"
-              className="!border-border !rounded-xl !bg-card"
+              maskColor="hsl(var(--background) / 0.6)"
+              className="!border-border !rounded-xl !bg-card/50 !backdrop-blur-sm"
             />
             <Panel position="bottom-center">
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-card/80 backdrop-blur-sm border border-border text-xs text-muted-foreground shadow">
