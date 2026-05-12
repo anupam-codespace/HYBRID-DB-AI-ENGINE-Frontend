@@ -211,51 +211,51 @@ body {
   inset: 0;
   z-index: 0;
   overflow: hidden;
+  background: #f0f2ff; /* light base */
+}
+.dark .app-bg-wrapper {
+  background: #0d0e17; /* dark base */
 }
 
-/* Light theme gradient */
-.app-bg-gradient {
-  position: absolute;
-  inset: 0;
-  background: #f8f9ff;
-}
-.app-bg-gradient::before,
-.app-bg-gradient::after,
-.app-bg-gradient > * {
-  display: none;
-}
-
-/* We build the orbs as pseudo-elements on the wrapper itself */
-.app-bg-wrapper::before,
-.app-bg-wrapper::after {
+/* Orb 1 – blue-purple (top-left) */
+.app-bg-wrapper::before {
   content: '';
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.35;
-}
-
-/* Orb 1 – blue-purple */
-.app-bg-wrapper::before {
+  filter: blur(90px);
   width: 55vw;
   height: 55vw;
   top: -10%;
   left: -8%;
   background: radial-gradient(circle, hsl(220 95% 65%), hsl(260 90% 70%));
+  opacity: 0.30;
   animation: orb-drift-1 18s ease-in-out infinite;
 }
+.dark .app-bg-wrapper::before {
+  background: radial-gradient(circle, hsl(220 80% 50%), hsl(260 75% 45%));
+  opacity: 0.55;
+}
 
-/* Orb 2 – teal-green */
+/* Orb 2 – teal-green (bottom-right) */
 .app-bg-wrapper::after {
-  width: 45vw;
-  height: 45vw;
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  width: 50vw;
+  height: 50vw;
   bottom: -12%;
   right: -5%;
   background: radial-gradient(circle, hsl(175 80% 55%), hsl(145 70% 60%));
+  opacity: 0.30;
   animation: orb-drift-2 22s ease-in-out infinite;
 }
+.dark .app-bg-wrapper::after {
+  background: radial-gradient(circle, hsl(175 70% 38%), hsl(145 60% 35%));
+  opacity: 0.45;
+}
 
-/* Orb 3 – pink-orange (extra span inside wrapper) */
+/* Orb 3 – pink-orange (centre, via .app-bg-gradient pseudo) */
 .app-bg-gradient {
   position: absolute;
   inset: 0;
@@ -265,8 +265,8 @@ body {
   content: '';
   position: absolute;
   border-radius: 50%;
-  filter: blur(90px);
-  opacity: 0.28;
+  filter: blur(100px);
+  opacity: 0.22;
   width: 40vw;
   height: 40vw;
   top: 40%;
@@ -274,23 +274,11 @@ body {
   background: radial-gradient(circle, hsl(330 90% 70%), hsl(15 95% 65%));
   animation: orb-drift-3 26s ease-in-out infinite;
 }
-
-/* Dark theme overrides */
-.dark .app-bg-wrapper {
-  background: #0c0c11;
-}
-.dark .app-bg-wrapper::before {
-  background: radial-gradient(circle, hsl(220 80% 45%), hsl(260 75% 40%));
-  opacity: 0.5;
-}
-.dark .app-bg-wrapper::after {
-  background: radial-gradient(circle, hsl(175 70% 35%), hsl(145 60% 35%));
-  opacity: 0.4;
-}
 .dark .app-bg-gradient::before {
-  background: radial-gradient(circle, hsl(330 70% 40%), hsl(15 80% 40%));
-  opacity: 0.35;
+  background: radial-gradient(circle, hsl(330 70% 45%), hsl(15 80% 42%));
+  opacity: 0.38;
 }
+
 
 /* ─── App shell – sits above the gradient layer ─────────────────────────────── */
 
@@ -298,57 +286,71 @@ body {
   position: relative;
   z-index: 1;
   background: transparent;
+  /* Make sure inherited text colours come from theme vars */
+  color: var(--color-foreground);
 }
 
-/* Make the main content areas semi-transparent so gradient shows through */
+/* ── Header ── */
 .app-shell header {
-  background: hsl(0 0% 100% / 0.55) !important;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border-bottom: 1px solid hsl(0 0% 100% / 0.25);
+  background: hsl(0 0% 100% / 0.6) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid hsl(0 0% 100% / 0.3) !important;
 }
 .dark .app-shell header {
-  background: hsl(222 30% 8% / 0.65) !important;
-  border-bottom: 1px solid hsl(0 0% 100% / 0.08);
+  background: hsl(230 25% 10% / 0.70) !important;
+  border-bottom: 1px solid hsl(230 20% 100% / 0.08) !important;
 }
 
-/* Chat area transparent */
-.app-shell main {
-  background: transparent !important;
-}
-
-/* Make bg-background transparent in the shell */
+/* ── Main chat area – fully transparent ── */
+.app-shell main,
 .app-shell .bg-background {
   background: transparent !important;
 }
 
-/* Secondary (input box) stays readable – slightly translucent */
+/* ── Input box (bg-secondary) ── */
 .app-shell .bg-secondary {
-  background: hsl(210 40% 96.1% / 0.8) !important;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: hsl(220 40% 97% / 0.82) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid hsl(220 30% 88% / 0.6) !important;
 }
 .dark .app-shell .bg-secondary {
-  background: hsl(217 30% 15% / 0.75) !important;
+  background: hsl(230 20% 16% / 0.80) !important;
+  border: 1px solid hsl(230 20% 30% / 0.45) !important;
 }
 
-/* Sidebar glass */
+/* ── Sidebar ── */
 .app-shell aside {
-  background: hsl(0 0% 100% / 0.6) !important;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: hsl(0 0% 100% / 0.65) !important;
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border-right: 1px solid hsl(0 0% 100% / 0.25) !important;
 }
 .dark .app-shell aside {
-  background: hsl(222 30% 10% / 0.7) !important;
+  background: hsl(230 25% 11% / 0.78) !important;
+  border-right: 1px solid hsl(230 20% 100% / 0.07) !important;
 }
 
-/* Card glass */
+/* ── Cards ── */
 .app-shell .bg-card {
-  background: hsl(0 0% 100% / 0.6) !important;
+  background: hsl(0 0% 100% / 0.65) !important;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 }
 .dark .app-shell .bg-card {
-  background: hsl(222 30% 12% / 0.7) !important;
+  background: hsl(230 22% 13% / 0.80) !important;
 }
 
+/* ── Muted backgrounds (model-selector pill, buttons) ── */
+.dark .app-shell .bg-muted\/60,
+.dark .app-shell .bg-muted {
+  background: hsl(230 20% 20% / 0.70) !important;
+}
+
+/* ── Popover / dropdown (model selector panel) ── */
+.dark [role="listbox"] {
+  background: hsl(230 22% 13% / 0.96) !important;
+  border-color: hsl(230 20% 30% / 0.55) !important;
+  color: hsl(220 15% 88%) !important;
+}
