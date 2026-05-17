@@ -396,7 +396,7 @@ body {
   background: hsl(225 18% 22%);
 }
 
-/* ─── Chat Mode Badge (inside input container) ─────────────────────────────── */
+/* ─── Chat Mode Badge ───────────────────────────────────────────────────────── */
 .chat-mode-badge {
   display: inline-flex;
   align-items: center;
@@ -431,3 +431,115 @@ body {
   border-color: hsl(183 55% 40% / 0.28);
   color: hsl(183 70% 62%);
 }
+
+/* ─── Mobile Optimizations ─────────────────────────────────────────────────── */
+
+/* Safe area insets for notched phones (iPhone X+) */
+body {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Minimum tap target size for all buttons (WCAG 2.5.5) */
+@media (max-width: 768px) {
+  button, [role="button"] {
+    min-height: 40px;
+    min-width: 40px;
+  }
+
+  /* Header compact on mobile */
+  header h1 {
+    font-size: 13px;
+  }
+
+  /* Full-width chat input on mobile */
+  .chat-input-container {
+    border-radius: 16px;
+  }
+
+  /* Make mode badge text shorter on small screens */
+  .chat-mode-badge {
+    font-size: 9px;
+    padding: 2px 7px 2px 5px;
+  }
+
+  /* Chat bubbles — less padding on mobile */
+  .user-bubble, .assistant-bubble {
+    max-width: 92%;
+  }
+
+  /* Shrink model pill label */
+  #model-selector-btn span {
+    max-width: 90px;
+    font-size: 11px;
+  }
+
+  /* Reduce chat area horizontal padding */
+  .chat-input-bottom {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* ER Canvas editor — fullscreen on mobile */
+  .er-canvas-header {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px 12px;
+  }
+
+  .er-canvas-toolbar {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .er-canvas-toolbar::-webkit-scrollbar { display: none; }
+
+  /* Prevent zoom on input focus (iOS Safari) */
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+
+  /* Chat textarea — comfortable on mobile */
+  .chat-textarea {
+    font-size: 16px !important;
+    min-height: 48px;
+  }
+
+  /* EmptyState text sizing */
+  .empty-state-title {
+    font-size: 24px !important;
+  }
+}
+
+/* Small phones */
+@media (max-width: 380px) {
+  header h1 { display: none; }
+  .chat-mode-badge { display: none; }
+  #model-selector-btn span { max-width: 70px; }
+}
+
+/* Landscape mobile — reduce vertical space */
+@media (max-height: 500px) and (max-width: 900px) {
+  header { padding-top: 4px !important; padding-bottom: 4px !important; }
+  .empty-state-title { font-size: 20px !important; }
+}
+
+/* Touch devices — remove hover-only states that feel broken on touch */
+@media (hover: none) {
+  .send-btn-active:hover {
+    transform: none;
+    box-shadow: 0 4px 16px hsl(229 84% 57% / 0.35) !important;
+  }
+  /* Show node action buttons always on touch (can't hover) */
+  .react-flow__node .group button {
+    opacity: 1 !important;
+  }
+}
+
+/* Tablet — moderate adjustments */
+@media (min-width: 768px) and (max-width: 1024px) {
+  #model-selector-btn span { max-width: 120px; }
+}
+
+

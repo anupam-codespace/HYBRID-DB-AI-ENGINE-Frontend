@@ -94,13 +94,16 @@ export async function sendPrompt(
       session_id: sessionId,
     })
     return data
-  } catch (err) {
-    // Fallback mock for Vercel deployment without backend
-    await new Promise(r => setTimeout(r, 1000))
-    return {
-      message_id: 'mock-msg-' + Date.now(),
-      content: `I am the AI Architect. You said: "${prompt}"\n\nAsk me to generate an ER diagram to see the interactive canvas in action!`,
+  } catch (err: any) {
+    const status = err?.response?.status
+    if (status === 405 || status === 404 || !status) {
+      return {
+        message_id: 'offline-' + Date.now(),
+        content:
+          '⚠️ **Backend not connected.**\n\nThe AI backend is running locally. To use ER diagram generation:\n\n1. Open a terminal and run:\n```\ncd "ER model" && uvicorn api:app --port 8000\n```\n2. Then set `VITE_API_URL=http://localhost:8000` and restart the frontend.',
+      }
     }
+    throw err
   }
 }
 
@@ -109,11 +112,23 @@ export async function generateERDiagram(
   prompt: string,
   fileIds: string[] = []
 ): Promise<ChatResponse> {
-  const { data } = await api.post<ChatResponse>('/er-diagram/generate', {
-    prompt,
-    file_ids: fileIds,
-  })
-  return data
+  try {
+    const { data } = await api.post<ChatResponse>('/er-diagram/generate', {
+      prompt,
+      file_ids: fileIds,
+    })
+    return data
+  } catch (err: any) {
+    const status = err?.response?.status
+    if (status === 405 || status === 404 || !status) {
+      return {
+        message_id: 'offline-er-' + Date.now(),
+        content:
+          '⚠️ **Backend not connected.**\n\nThe NLP backend needs to be running locally to generate ER diagrams.\n\n**Start it with:**\n```\ncd "ER model"\nsource ../.venv/bin/activate\nuvicorn api:app --reload --port 8000\n```\nThen refresh and try again.',
+      }
+    }
+    throw err
+  }
 }
 
 /** Save edited ER diagram back to the backend */
