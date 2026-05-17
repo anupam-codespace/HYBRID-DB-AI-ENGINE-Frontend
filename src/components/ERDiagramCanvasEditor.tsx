@@ -37,27 +37,18 @@ function InlineLabel({
   className?: string
 }) {
   const [editing, setEditing] = useState(false)
-  const [draft, setDraft] = useState(value)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => { setDraft(value) }, [value])
   useEffect(() => { if (editing) inputRef.current?.select() }, [editing])
-
-  const commit = () => {
-    setEditing(false)
-    const trimmed = draft.trim()
-    if (trimmed && trimmed !== value) onChange(trimmed)
-    else setDraft(value)
-  }
 
   if (editing) {
     return (
       <input
         ref={inputRef}
-        value={draft}
-        onChange={e => setDraft(e.target.value)}
-        onBlur={commit}
-        onKeyDown={e => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') { setEditing(false); setDraft(value) } }}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        onBlur={() => setEditing(false)}
+        onKeyDown={e => { if (e.key === 'Enter') setEditing(false); if (e.key === 'Escape') setEditing(false) }}
         className={cn('bg-transparent border-b border-black outline-none text-center font-bold w-full', className)}
         style={{ minWidth: 60 }}
       />
@@ -69,7 +60,7 @@ function InlineLabel({
       title="Double-click to rename"
       className={cn('cursor-text select-none', className)}
     >
-      {value}
+      {value || ' '}
     </span>
   )
 }
