@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, type KeyboardEvent } from 'react'
 
-// ─── Web Speech API type shim (not in default TS lib) ────────────────────────
+// ─── Web Speech API type shim ─────────────────────────────────────────────────
 declare global {
   interface Window {
     SpeechRecognition: new () => ISpeechRecognition
@@ -18,12 +18,14 @@ interface ISpeechRecognition extends EventTarget {
   onerror: ((e: { error: string }) => void) | null
   onresult: ((e: { results: { [k: number]: { [k: number]: { transcript: string } } } }) => void) | null
 }
-import { Send, Sparkles, X, Mic, MicOff, ChevronDown, Check } from 'lucide-react'
+
+import { ArrowUp, Sparkles, X, Mic, MicOff, ChevronDown, Check, Paperclip } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { FileUploadButton, FileIcon } from '@/components/FileUploadButton'
 import { useAppStore } from '@/store/appStore'
 import { sendPrompt, generateERDiagram } from '@/lib/api'
+import { Database, GitBranch } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
 import { formatFileSize } from '@/lib/utils'
 import { cn } from '@/lib/utils'
@@ -31,8 +33,8 @@ import { cn } from '@/lib/utils'
 // ─── Model Options ────────────────────────────────────────────────────────────
 
 const MODEL_OPTIONS = [
-  { value: 'er',     label: 'ER Model' },
-  { value: 'hybrid', label: 'Hybrid Database Model' },
+  { value: 'er',     label: 'ER Model',             desc: 'Entity-Relationship diagrams' },
+  { value: 'hybrid', label: 'Hybrid Database Model', desc: 'Multi-model schema design' },
 ] as const
 
 type ModelValue = typeof MODEL_OPTIONS[number]['value']
@@ -44,7 +46,6 @@ function ModelSelector() {
   const [open, setOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
-  // close on outside click
   useEffect(() => {
     function onOutsideClick(e: MouseEvent) {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
@@ -63,12 +64,7 @@ function ModelSelector() {
       <button
         id="model-selector-btn"
         onClick={() => setOpen((v) => !v)}
-        className={cn(
-          'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all select-none',
-          'bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/60',
-          open && 'bg-muted text-foreground',
-          !current && 'text-muted-foreground/70'
-        )}
+        className="model-pill flex items-center gap-1.5 px-3 py-1.5 select-none"
         aria-haspopup="listbox"
         aria-expanded={open}
       >
@@ -80,15 +76,12 @@ function ModelSelector() {
 
       {open && (
         <div
-          className={cn(
-            'absolute bottom-full left-0 mb-2 w-52 rounded-2xl border border-border bg-card shadow-xl z-50',
-            'animate-fade-in overflow-hidden'
-          )}
+          className="absolute bottom-full left-0 mb-2 w-60 rounded-2xl border border-border bg-card shadow-2xl z-50 animate-scale-in overflow-hidden"
           role="listbox"
         >
-          <div className="px-3 pt-3 pb-1">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Select model
+          <div className="px-3 pt-3 pb-1.5">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+              Choose Model
             </p>
           </div>
           {MODEL_OPTIONS.map((opt) => (
@@ -96,28 +89,27 @@ function ModelSelector() {
               key={opt.value}
               role="option"
               aria-selected={selectedModel === opt.value}
-              onClick={() => {
-                setSelectedModel(opt.value as ModelValue)
-                setOpen(false)
-              }}
+              onClick={() => { setSelectedModel(opt.value as ModelValue); setOpen(false) }}
               className={cn(
-                'w-full flex items-center justify-between gap-2 px-3 py-2.5 text-sm transition-colors',
-                'hover:bg-muted/70 text-left',
-                selectedModel === opt.value ? 'text-primary font-medium' : 'text-foreground'
+                'w-full flex items-start justify-between gap-2 px-3 py-3 text-sm transition-colors hover:bg-muted/60 text-left',
+                selectedModel === opt.value ? 'text-primary' : 'text-foreground'
               )}
             >
-              <span>{opt.label}</span>
-              {selectedModel === opt.value && <Check className="h-3.5 w-3.5 flex-shrink-0 text-primary" />}
+              <div>
+                <p className="font-medium leading-tight">{opt.label}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{opt.desc}</p>
+              </div>
+              {selectedModel === opt.value && <Check className="h-3.5 w-3.5 flex-shrink-0 mt-0.5 text-primary" />}
             </button>
           ))}
-          <div className="h-2" />
+          <div className="h-1.5" />
         </div>
       )}
     </div>
   )
 }
 
-// ─── Mic Button (Web Speech API) ──────────────────────────────────────────────
+// ─── Mic Button ───────────────────────────────────────────────────────────────
 
 function MicButton({ onTranscript }: { onTranscript: (text: string) => void }) {
   const [listening, setListening] = useState(false)
@@ -133,15 +125,12 @@ function MicButton({ onTranscript }: { onTranscript: (text: string) => void }) {
       toast({ title: 'Not supported', description: 'Speech recognition is not available in this browser.', variant: 'destructive' })
       return
     }
-
-    const SRClass =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    const SRClass = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     const recognition: ISpeechRecognition = new SRClass()
     recognition.lang = 'en-US'
     recognition.interimResults = false
     recognition.maxAlternatives = 1
     recognitionRef.current = recognition
-
     recognition.onstart = () => setListening(true)
     recognition.onend = () => setListening(false)
     recognition.onerror = (e) => {
@@ -150,11 +139,7 @@ function MicButton({ onTranscript }: { onTranscript: (text: string) => void }) {
         toast({ title: 'Mic error', description: e.error, variant: 'destructive' })
       }
     }
-    recognition.onresult = (e) => {
-      const transcript = e.results[0][0].transcript
-      onTranscript(transcript)
-    }
-
+    recognition.onresult = (e) => { onTranscript(e.results[0][0].transcript) }
     recognition.start()
   }, [supported, onTranscript, toast])
 
@@ -163,28 +148,21 @@ function MicButton({ onTranscript }: { onTranscript: (text: string) => void }) {
     setListening(false)
   }, [])
 
-  const toggleMic = () => {
-    if (listening) stopListening()
-    else startListening()
-  }
-
   return (
-    <Button
+    <button
       id="mic-btn"
       type="button"
-      variant="ghost"
-      size="icon"
-      onClick={toggleMic}
+      onClick={listening ? stopListening : startListening}
       aria-label={listening ? 'Stop recording' : 'Start voice input'}
       className={cn(
-        'flex-shrink-0 h-10 w-10 rounded-full transition-all mb-0.5',
+        'flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center transition-all',
         listening
           ? 'text-red-500 bg-red-500/10 animate-pulse-glow'
-          : 'bg-transparent hover:bg-muted text-muted-foreground hover:text-foreground'
+          : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
       )}
     >
-      {listening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
-    </Button>
+      {listening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+    </button>
   )
 }
 
@@ -193,8 +171,11 @@ function MicButton({ onTranscript }: { onTranscript: (text: string) => void }) {
 export function ChatInput() {
   const [text, setText] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const { addMessage, updateMessage, pendingFiles, removePendingFile, clearPendingFiles, sessionId, isGenerating, setIsGenerating, messages } =
-    useAppStore()
+  const {
+    addMessage, updateMessage, pendingFiles, removePendingFile,
+    clearPendingFiles, sessionId, isGenerating, setIsGenerating,
+    selectedModel,
+  } = useAppStore()
   const { toast } = useToast()
 
   // Auto-resize textarea
@@ -205,6 +186,11 @@ export function ChatInput() {
     ta.style.height = `${Math.min(ta.scrollHeight, 200)}px`
   }, [text])
 
+  // Placeholder text changes based on mode
+  const placeholder = selectedModel === 'er'
+    ? 'e.g. "A student can enroll in many courses" — describe any entity relationship…'
+    : 'Describe your database schema or ask a query…'
+
   const handleSend = async () => {
     const trimmed = text.trim()
     if (!trimmed || isGenerating) return
@@ -212,18 +198,18 @@ export function ChatInput() {
     const attachedFiles = [...pendingFiles]
     const fileIds = attachedFiles.filter((f) => f.fileId).map((f) => f.fileId!)
 
-    // Add user message
     addMessage({ role: 'user', content: trimmed, files: attachedFiles })
     setText('')
     clearPendingFiles()
 
-    // Add loading placeholder
     const aiId = addMessage({ role: 'assistant', content: '', isLoading: true })
     setIsGenerating(true)
 
     try {
-      const isERPrompt = /er\s*diagram|entity\s*relation|generate.*diagram/i.test(trimmed)
-      const response = isERPrompt
+      // Route to ER diagram endpoint when ER model is selected OR prompt matches ER keywords
+      const isERMode = selectedModel === 'er'
+      const isERKeyword = /er\s*diagram|entity.{0,10}relation|generate.*diagram/i.test(trimmed)
+      const response = (isERMode || isERKeyword)
         ? await generateERDiagram(trimmed, fileIds)
         : await sendPrompt(trimmed, fileIds, sessionId)
 
@@ -259,100 +245,115 @@ export function ChatInput() {
     }
   }
 
-  // Append transcript to existing text
   const handleTranscript = (transcript: string) => {
     setText((prev) => (prev ? prev + ' ' + transcript : transcript))
     textareaRef.current?.focus()
   }
 
+  const canSend = text.trim() && !isGenerating
+
   return (
-    <div className="flex flex-col gap-2">
-
-      {/* Input area */}
-      <div
-        className={cn(
-          'relative rounded-[32px] border-0 transition-all duration-200 bg-secondary',
-          'focus-within:ring-2 focus-within:ring-primary/20',
-          isGenerating && 'opacity-70'
-        )}
-      >
-        {/* Pending files row */}
-        {pendingFiles.length > 0 && (
-          <div className="px-5 pt-4 flex flex-wrap gap-2 max-h-[120px] overflow-y-auto">
-            {pendingFiles.map((f) => (
-              <div
-                key={f.id}
-                className={cn(
-                  'flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all bg-background',
-                  f.error
-                    ? 'border-destructive/50 text-destructive'
-                    : 'border-border text-foreground'
-                )}
+    <div className="flex flex-col gap-2 w-full">
+      {/* Pending files */}
+      {pendingFiles.length > 0 && (
+        <div className="px-1 flex flex-wrap gap-2 max-h-[100px] overflow-y-auto">
+          {pendingFiles.map((f) => (
+            <div
+              key={f.id}
+              className={cn(
+                'flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium bg-card transition-all',
+                f.error ? 'border-destructive/50 text-destructive' : 'border-border text-foreground'
+              )}
+            >
+              {f.uploading
+                ? <span className="h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                : <FileIcon type={f.type} />
+              }
+              <span className="max-w-[140px] truncate">{f.name}</span>
+              <span className="opacity-50 hidden sm:inline text-[10px]">{formatFileSize(f.size)}</span>
+              <button
+                onClick={() => removePendingFile(f.id)}
+                className="ml-0.5 opacity-50 hover:opacity-100 transition-opacity"
+                aria-label="Remove file"
               >
-                {f.uploading ? (
-                  <span className="h-3.5 w-3.5 rounded-full border-2 border-current border-t-transparent animate-spin" />
-                ) : (
-                  <FileIcon type={f.type} />
-                )}
-                <span className="max-w-[150px] truncate">{f.name}</span>
-                <span className="opacity-60 hidden sm:inline">{formatFileSize(f.size)}</span>
-                <button
-                  onClick={() => removePendingFile(f.id)}
-                  className="ml-1 opacity-60 hover:opacity-100 transition-opacity"
-                  aria-label="Remove file"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
-        <div className="flex items-end gap-2 sm:gap-3 px-2 sm:px-4 py-2 sm:py-3">
-          <div className="flex-shrink-0 pb-0.5">
-            <FileUploadButton />
-          </div>
+      {/* Input container — premium glassmorphism card */}
+      <div className={cn('chat-input-container', isGenerating && 'opacity-80 pointer-events-none')}>
 
-          <Textarea
+        {/* Mode badge strip at top */}
+        <div className="flex items-center gap-2 px-4 pt-3 pb-0">
+          {selectedModel === 'er' ? (
+            <span className="chat-mode-badge chat-mode-badge--er">
+              <GitBranch className="h-2.5 w-2.5" />
+              ER Model — describe any entity relationship
+            </span>
+          ) : (
+            <span className="chat-mode-badge chat-mode-badge--hybrid">
+              <Database className="h-2.5 w-2.5" />
+              Hybrid Database Model
+            </span>
+          )}
+        </div>
+
+        {/* Textarea row */}
+        <div className="flex items-end gap-2 px-4 pt-2 pb-2">
+          <textarea
             ref={textareaRef}
             id="chat-input"
-            placeholder="Ask a query..."
-            data-placeholder-desktop="Describe your data model or ask a query..."
+            placeholder={placeholder}
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={isGenerating}
             rows={1}
-            className="flex-1 border-0 bg-transparent shadow-none focus-visible:ring-0 p-1.5 sm:p-2 min-h-[40px] sm:min-h-[44px] max-h-[200px] text-[14px] sm:text-[15px] resize-none placeholder:text-sm"
+            className="chat-textarea flex-1 min-h-[44px] max-h-[200px] text-[14px] sm:text-[15px] w-full leading-relaxed"
           />
+        </div>
 
-          {/* Mic Button */}
-          <MicButton onTranscript={handleTranscript} />
+        {/* Divider */}
+        <div className="mx-4 border-t border-border/40" />
 
-          {/* Send Button */}
-          <Button
+        {/* Toolbar row */}
+        <div className="flex items-center justify-between px-3 py-2.5">
+          <div className="flex items-center gap-1">
+            {/* File upload */}
+            <FileUploadButton />
+            {/* Mic */}
+            <MicButton onTranscript={handleTranscript} />
+            {/* Model selector */}
+            <ModelSelector />
+          </div>
+
+          {/* Send button */}
+          <button
             id="send-btn"
-            size="icon"
-            disabled={!text.trim() || isGenerating}
+            disabled={!canSend}
             onClick={handleSend}
+            aria-label="Send message"
             className={cn(
-              'flex-shrink-0 h-9 w-9 sm:h-10 sm:w-10 rounded-full transition-all bg-transparent hover:bg-muted text-muted-foreground mb-0.5',
-              text.trim() && !isGenerating && 'text-primary'
+              'h-9 w-9 rounded-full flex items-center justify-center transition-all duration-200 flex-shrink-0',
+              canSend
+                ? 'send-btn-active'
+                : 'bg-muted text-muted-foreground cursor-not-allowed'
             )}
           >
-            {isGenerating ? (
-              <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4 sm:h-5 sm:w-5" />
-            )}
-          </Button>
+            {isGenerating
+              ? <Sparkles className="h-4 w-4 animate-spin" />
+              : <ArrowUp className="h-4 w-4" />
+            }
+          </button>
         </div>
       </div>
 
-      {/* Bottom toolbar: Model selector */}
-      <div className="flex items-center gap-2 px-2 mt-1">
-        <ModelSelector />
-      </div>
+      <p className="text-center text-[11px] text-muted-foreground/60 select-none">
+        Press <kbd className="font-mono bg-muted px-1 py-0.5 rounded text-[10px]">Enter</kbd> to send &nbsp;·&nbsp; <kbd className="font-mono bg-muted px-1 py-0.5 rounded text-[10px]">Shift+Enter</kbd> for new line
+      </p>
     </div>
   )
 }

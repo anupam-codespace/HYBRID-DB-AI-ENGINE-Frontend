@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&display=swap');
 
 @import "tailwindcss";
 
@@ -7,53 +7,52 @@
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 
-  --color-background: hsl(0 0% 100%);
-  --color-foreground: hsl(222.2 84% 4.9%);
-  --color-card: hsl(0 0% 100%);
-  --color-card-foreground: hsl(222.2 84% 4.9%);
-  --color-popover: hsl(0 0% 100%);
-  --color-popover-foreground: hsl(222.2 84% 4.9%);
-  --color-primary: hsl(221.2 83.2% 53.3%);
-  --color-primary-foreground: hsl(210 40% 98%);
-  --color-secondary: hsl(210 40% 96.1%);
-  --color-secondary-foreground: hsl(222.2 47.4% 11.2%);
-  --color-muted: hsl(210 40% 96.1%);
-  --color-muted-foreground: hsl(215.4 16.3% 46.9%);
-  --color-accent: hsl(210 40% 96.1%);
-  --color-accent-foreground: hsl(222.2 47.4% 11.2%);
-  --color-destructive: hsl(0 84.2% 60.2%);
-  --color-destructive-foreground: hsl(210 40% 98%);
-  --color-border: hsl(214.3 31.8% 91.4%);
-  --color-input: hsl(214.3 31.8% 91.4%);
-  --color-ring: hsl(221.2 83.2% 53.3%);
-  --radius: 0.5rem;
+  /* ── Light ── */
+  --color-background:          hsl(220 30% 97%);
+  --color-foreground:          hsl(222 47% 10%);
+  --color-card:                hsl(0 0% 100%);
+  --color-card-foreground:     hsl(222 47% 10%);
+  --color-popover:             hsl(0 0% 100%);
+  --color-popover-foreground:  hsl(222 47% 10%);
+  --color-primary:             hsl(229 84% 57%);
+  --color-primary-foreground:  hsl(0 0% 100%);
+  --color-secondary:           hsl(220 20% 94%);
+  --color-secondary-foreground:hsl(222 47% 14%);
+  --color-muted:               hsl(220 18% 93%);
+  --color-muted-foreground:    hsl(215 16% 47%);
+  --color-accent:              hsl(220 18% 93%);
+  --color-accent-foreground:   hsl(222 47% 14%);
+  --color-destructive:         hsl(0 72% 51%);
+  --color-destructive-foreground: hsl(0 0% 100%);
+  --color-border:              hsl(218 24% 88%);
+  --color-input:               hsl(218 24% 88%);
+  --color-ring:                hsl(229 84% 57%);
+  --radius: 0.625rem;
 }
 
 .dark {
-  --color-background: #131314;
-  --color-foreground: #e3e3e3;
-  --color-card: #1e1f20;
-  --color-card-foreground: #e3e3e3;
-  --color-popover: #1e1f20;
-  --color-popover-foreground: #e3e3e3;
-  --color-primary: #8ab4f8;
-  --color-primary-foreground: #131314;
-  --color-secondary: #282a2c;
-  --color-secondary-foreground: #e3e3e3;
-  --color-muted: #282a2c;
-  --color-muted-foreground: #a8a8a8;
-  --color-accent: #282a2c;
-  --color-accent-foreground: #e3e3e3;
-  --color-destructive: #f28b82;
-  --color-destructive-foreground: #131314;
-  --color-border: #444746;
-  --color-input: #444746;
-  --color-ring: #8ab4f8;
+  --color-background:          #0d0e12;
+  --color-foreground:          #e6e8f0;
+  --color-card:                #16171d;
+  --color-card-foreground:     #e6e8f0;
+  --color-popover:             #1b1c24;
+  --color-popover-foreground:  #e6e8f0;
+  --color-primary:             #6c8ef7;
+  --color-primary-foreground:  #0d0e12;
+  --color-secondary:           #1e2029;
+  --color-secondary-foreground:#e6e8f0;
+  --color-muted:               #1e2029;
+  --color-muted-foreground:    #8a8fa8;
+  --color-accent:              #1e2029;
+  --color-accent-foreground:   #e6e8f0;
+  --color-destructive:         #e05c5c;
+  --color-destructive-foreground:#0d0e12;
+  --color-border:              #2a2d3a;
+  --color-input:               #2a2d3a;
+  --color-ring:                #6c8ef7;
 }
 
-* {
-  border-color: var(--color-border);
-}
+* { border-color: var(--color-border); box-sizing: border-box; }
 
 body {
   background-color: var(--color-background);
@@ -61,83 +60,86 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+/* ─── Custom Scrollbar ─────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: hsl(215.4 16.3% 46.9% / 0.4);
+  background: hsl(215 16% 47% / 0.35);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(215.4 16.3% 46.9% / 0.7);
+  background: hsl(215 16% 47% / 0.6);
 }
 
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes slideInLeft {
-  from { opacity: 0; transform: translateX(-20px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-@keyframes slideInRight {
-  from { opacity: 0; transform: translateX(20px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
+/* ─── Keyframe Animations ─────────────────────────────────────────────────── */
+@keyframes fadeIn       { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeInFast   { from { opacity:0; transform:translateY(5px); }  to { opacity:1; transform:translateY(0); } }
+@keyframes slideInLeft  { from { opacity:0; transform:translateX(-20px); } to { opacity:1; transform:translateX(0); } }
+@keyframes slideInRight { from { opacity:0; transform:translateX(20px); }  to { opacity:1; transform:translateX(0); } }
+@keyframes scaleIn      { from { opacity:0; transform:scale(0.96); }        to { opacity:1; transform:scale(1); } }
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 hsl(221.2 83.2% 53.3% / 0.4); }
-  50%       { box-shadow: 0 0 0 8px hsl(221.2 83.2% 53.3% / 0); }
+  0%,100% { box-shadow:0 0 0 0 hsl(229 84% 57% / 0.4); }
+  50%     { box-shadow:0 0 0 8px hsl(229 84% 57% / 0); }
 }
 @keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0%   { background-position:-200% 0; }
+  100% { background-position:200% 0; }
 }
 @keyframes typing-dot {
-  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-  30%            { transform: translateY(-6px); opacity: 1; }
+  0%,60%,100% { transform:translateY(0);   opacity:0.35; }
+  30%          { transform:translateY(-6px); opacity:1; }
 }
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+@keyframes spin-slow  { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+@keyframes spin-pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+@keyframes border-spin {
+  to { --angle: 360deg; }
+}
+@keyframes orb-drift-1 {
+  0%   { transform: translate(0,0)     scale(1); }
+  33%  { transform: translate(70px,-90px)  scale(1.12); }
+  66%  { transform: translate(-50px,65px)  scale(0.9); }
+  100% { transform: translate(0,0)     scale(1); }
+}
+@keyframes orb-drift-2 {
+  0%   { transform: translate(0,0)     scale(1); }
+  33%  { transform: translate(-80px,55px)  scale(1.18); }
+  66%  { transform: translate(55px,-50px)  scale(0.88); }
+  100% { transform: translate(0,0)     scale(1); }
+}
+@keyframes orb-drift-3 {
+  0%   { transform: translate(0,0)   scale(1); }
+  50%  { transform: translate(45px,85px) scale(1.1); }
+  100% { transform: translate(0,0)   scale(1); }
 }
 
-.animate-fade-in       { animation: fadeIn 0.4s ease forwards; }
-.animate-slide-in-left  { animation: slideInLeft 0.3s ease forwards; }
+/* ─── Animation Classes ────────────────────────────────────────────────────── */
+.animate-fade-in        { animation: fadeIn       0.4s ease forwards; }
+.animate-fade-in-fast   { animation: fadeInFast   0.25s ease forwards; }
+.animate-scale-in       { animation: scaleIn      0.3s ease forwards; }
+.animate-slide-in-left  { animation: slideInLeft  0.3s ease forwards; }
 .animate-slide-in-right { animation: slideInRight 0.3s ease forwards; }
-.animate-pulse-glow    { animation: pulse-glow 2s infinite; }
-.animate-spin-slow     { animation: spin-slow 8s linear infinite; }
+.animate-pulse-glow     { animation: pulse-glow   2s infinite; }
+.animate-spin-slow      { animation: spin-slow    8s linear infinite; }
 
+/* ─── Skeleton Loader ──────────────────────────────────────────────────────── */
 .skeleton {
-  background: linear-gradient(90deg,
-    hsl(210 40% 96.1%) 25%,
-    hsl(210 40% 92%)   50%,
-    hsl(210 40% 96.1%) 75%
-  );
+  background: linear-gradient(90deg, hsl(220 20% 94%) 25%, hsl(220 20% 90%) 50%, hsl(220 20% 94%) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
 .dark .skeleton {
-  background: linear-gradient(90deg,
-    hsl(217.2 32.6% 17.5%) 25%,
-    hsl(217.2 32.6% 22%)   50%,
-    hsl(217.2 32.6% 17.5%) 75%
-  );
+  background: linear-gradient(90deg, hsl(225 15% 18%) 25%, hsl(225 15% 23%) 50%, hsl(225 15% 18%) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
 
+/* ─── Typing Indicator ─────────────────────────────────────────────────────── */
 .typing-dot {
   display: inline-block;
-  width: 6px;
-  height: 6px;
+  width: 6px; height: 6px;
   border-radius: 50%;
   background: currentColor;
   animation: typing-dot 1.2s ease-in-out infinite;
@@ -145,262 +147,287 @@ body {
 .typing-dot:nth-child(2) { animation-delay: 0.2s; }
 .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
+/* ─── Glass ────────────────────────────────────────────────────────────────── */
 .glass {
-  background: hsl(0 0% 100% / 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: hsl(0 0% 100% / 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 .dark .glass {
-  background: hsl(222.2 84% 4.9% / 0.7);
+  background: hsl(225 18% 10% / 0.72);
 }
 
-.gradient-border {
-  border: 1px solid transparent;
-  background-clip: padding-box;
-  position: relative;
-}
-.gradient-border::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(135deg, hsl(221.2 83.2% 53.3%), hsl(280 80% 60%));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-}
+/* ─── ReactFlow ────────────────────────────────────────────────────────────── */
+.react-flow__node { transition: box-shadow 0.2s ease; }
+.react-flow__node.selected { box-shadow: 0 0 0 2px hsl(229 84% 57%); }
 
-/* ReactFlow custom styles */
-.react-flow__node {
-  transition: box-shadow 0.2s ease;
-}
-.react-flow__node.selected {
-  box-shadow: 0 0 0 2px hsl(221.2 83.2% 53.3%);
-}
-
-/* ─── Mobile sticky input bar ─────────────────────────────────────────────── */
-
-/* Glass blur background for the fixed bottom bar on mobile */
-.chat-input-mobile-bar {
-  background: hsl(0 0% 100% / 0.72);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid hsl(0 0% 100% / 0.3);
-  /* safe area for phones with home indicator */
-  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
-}
-.dark .chat-input-mobile-bar {
-  background: hsl(230 25% 10% / 0.82);
-  border-top: 1px solid hsl(230 20% 100% / 0.08);
-}
-
-/* On desktop the bar is not fixed – reset glass */
-@media (min-width: 640px) {
-  .chat-input-mobile-bar {
-    background: transparent;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    border-top: none;
-    padding-bottom: 1.5rem;
-  }
-  .dark .chat-input-mobile-bar {
-    background: transparent;
-    border-top: none;
-  }
-}
-
-/* Desktop: use longer placeholder via attr trick */
-@media (min-width: 640px) {
-  #chat-input::placeholder {
-    content: attr(data-placeholder-desktop);
-  }
-  /* Override placeholder text on desktop */
-  #chat-input {
-    /* We set the correct longer placeholder via JS below;
-       on desktop just restore normal font size */
-    font-size: 15px;
-  }
-}
-
-/* Model selector pill – compact on mobile */
-@media (max-width: 639px) {
-  #model-selector-btn span {
-    max-width: 130px;
-  }
-}
-/* ─── Animated gradient background ─────────────────────────────────────────── */
-
-@keyframes bg-shift {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes orb-drift-1 {
-  0%   { transform: translate(0px,   0px)   scale(1); }
-  33%  { transform: translate(60px,  -80px) scale(1.15); }
-  66%  { transform: translate(-40px, 60px)  scale(0.9); }
-  100% { transform: translate(0px,   0px)   scale(1); }
-}
-@keyframes orb-drift-2 {
-  0%   { transform: translate(0px, 0px)    scale(1); }
-  33%  { transform: translate(-70px, 50px) scale(1.2); }
-  66%  { transform: translate(50px, -40px) scale(0.85); }
-  100% { transform: translate(0px, 0px)    scale(1); }
-}
-@keyframes orb-drift-3 {
-  0%   { transform: translate(0px,   0px)  scale(1); }
-  50%  { transform: translate(40px,  80px) scale(1.1); }
-  100% { transform: translate(0px,   0px)  scale(1); }
-}
-
+/* ─── Animated Ambient Background ─────────────────────────────────────────── */
 .app-bg-wrapper {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  background: #f0f2ff; /* light base */
+  position: fixed; inset: 0; z-index: 0; overflow: hidden;
+  background: hsl(222 30% 96%);
 }
-.dark .app-bg-wrapper {
-  background: #0d0e17; /* dark base */
-}
+.dark .app-bg-wrapper { background: #0d0e12; }
 
-/* Orb 1 – blue-purple (top-left) */
+/* Orb 1 – indigo/violet (top-left) */
 .app-bg-wrapper::before {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(90px);
-  width: 55vw;
-  height: 55vw;
-  top: -10%;
-  left: -8%;
-  background: radial-gradient(circle, hsl(220 95% 65%), hsl(260 90% 70%));
-  opacity: 0.30;
-  animation: orb-drift-1 18s ease-in-out infinite;
+  content: ''; position: absolute; border-radius: 50%;
+  filter: blur(100px);
+  width: 60vw; height: 60vw;
+  top: -15%; left: -10%;
+  background: radial-gradient(circle, hsl(229 90% 62%), hsl(265 85% 68%));
+  opacity: 0.28;
+  animation: orb-drift-1 20s ease-in-out infinite;
 }
 .dark .app-bg-wrapper::before {
-  background: radial-gradient(circle, hsl(220 80% 50%), hsl(260 75% 45%));
+  background: radial-gradient(circle, hsl(229 75% 45%), hsl(265 70% 40%));
   opacity: 0.55;
 }
 
-/* Orb 2 – teal-green (bottom-right) */
+/* Orb 2 – teal/cyan (bottom-right) */
 .app-bg-wrapper::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(90px);
-  width: 50vw;
-  height: 50vw;
-  bottom: -12%;
-  right: -5%;
-  background: radial-gradient(circle, hsl(175 80% 55%), hsl(145 70% 60%));
-  opacity: 0.30;
-  animation: orb-drift-2 22s ease-in-out infinite;
+  content: ''; position: absolute; border-radius: 50%;
+  filter: blur(100px);
+  width: 55vw; height: 55vw;
+  bottom: -15%; right: -8%;
+  background: radial-gradient(circle, hsl(183 85% 52%), hsl(160 75% 58%));
+  opacity: 0.25;
+  animation: orb-drift-2 24s ease-in-out infinite;
 }
 .dark .app-bg-wrapper::after {
-  background: radial-gradient(circle, hsl(175 70% 38%), hsl(145 60% 35%));
-  opacity: 0.45;
+  background: radial-gradient(circle, hsl(183 65% 36%), hsl(160 60% 33%));
+  opacity: 0.42;
 }
 
-/* Orb 3 – pink-orange (centre, via .app-bg-gradient pseudo) */
+/* Orb 3 – rose/amber (centre) */
 .app-bg-gradient {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
+  position: absolute; inset: 0; pointer-events: none;
 }
 .app-bg-gradient::before {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.22;
-  width: 40vw;
-  height: 40vw;
-  top: 40%;
-  left: 35%;
-  background: radial-gradient(circle, hsl(330 90% 70%), hsl(15 95% 65%));
-  animation: orb-drift-3 26s ease-in-out infinite;
+  content: ''; position: absolute; border-radius: 50%;
+  filter: blur(110px); opacity: 0.18;
+  width: 45vw; height: 45vw;
+  top: 38%; left: 32%;
+  background: radial-gradient(circle, hsl(335 88% 68%), hsl(20 95% 62%));
+  animation: orb-drift-3 28s ease-in-out infinite;
 }
 .dark .app-bg-gradient::before {
-  background: radial-gradient(circle, hsl(330 70% 45%), hsl(15 80% 42%));
-  opacity: 0.38;
+  background: radial-gradient(circle, hsl(335 65% 42%), hsl(20 75% 40%));
+  opacity: 0.34;
 }
 
-
-/* ─── App shell – sits above the gradient layer ─────────────────────────────── */
-
+/* ─── App Shell ────────────────────────────────────────────────────────────── */
 .app-shell {
-  position: relative;
-  z-index: 1;
+  position: relative; z-index: 1;
   background: transparent;
-  /* Make sure inherited text colours come from theme vars */
   color: var(--color-foreground);
 }
 
 /* ── Header ── */
 .app-shell header {
-  background: hsl(0 0% 100% / 0.6) !important;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid hsl(0 0% 100% / 0.3) !important;
+  background: hsl(0 0% 100% / 0.55) !important;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid hsl(220 20% 90% / 0.8) !important;
 }
 .dark .app-shell header {
-  background: hsl(230 25% 10% / 0.70) !important;
-  border-bottom: 1px solid hsl(230 20% 100% / 0.08) !important;
+  background: hsl(225 20% 9% / 0.72) !important;
+  border-bottom: 1px solid hsl(225 15% 100% / 0.07) !important;
 }
 
-/* ── Main chat area – fully transparent ── */
+/* ── Main/chat area ── */
 .app-shell main,
-.app-shell .bg-background {
-  background: transparent !important;
+.app-shell .bg-background { background: transparent !important; }
+
+/* ── Input container ── */
+.chat-input-container {
+  background: hsl(0 0% 100% / 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid hsl(220 25% 88% / 0.9);
+  border-radius: 20px;
+  box-shadow:
+    0 4px 24px hsl(229 84% 57% / 0.07),
+    0 1px 0 hsl(0 0% 100% / 0.9) inset;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.chat-input-container:focus-within {
+  border-color: hsl(229 84% 57% / 0.5);
+  box-shadow:
+    0 6px 32px hsl(229 84% 57% / 0.12),
+    0 1px 0 hsl(0 0% 100% / 0.9) inset;
+}
+.dark .chat-input-container {
+  background: hsl(225 18% 13% / 0.9);
+  border-color: hsl(225 15% 30% / 0.5);
+  box-shadow:
+    0 4px 24px hsl(0 0% 0% / 0.25),
+    0 1px 0 hsl(225 15% 100% / 0.04) inset;
+}
+.dark .chat-input-container:focus-within {
+  border-color: hsl(229 70% 60% / 0.55);
+  box-shadow:
+    0 6px 32px hsl(229 70% 55% / 0.18),
+    0 1px 0 hsl(225 15% 100% / 0.04) inset;
 }
 
-/* ── Input box (bg-secondary) ── */
-.app-shell .bg-secondary {
-  background: hsl(220 40% 97% / 0.82) !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid hsl(220 30% 88% / 0.6) !important;
+/* Textarea inside chat input */
+.chat-textarea {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  resize: none;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-foreground);
 }
-.dark .app-shell .bg-secondary {
-  background: hsl(230 20% 16% / 0.80) !important;
-  border: 1px solid hsl(230 20% 30% / 0.45) !important;
+.chat-textarea::placeholder {
+  color: var(--color-muted-foreground);
+  font-size: 14px;
+}
+.chat-textarea:focus { outline: none; }
+
+/* ── Send button premium glow ── */
+.send-btn-active {
+  background: linear-gradient(135deg, hsl(229 84% 57%), hsl(265 80% 60%)) !important;
+  color: white !important;
+  box-shadow: 0 4px 16px hsl(229 84% 57% / 0.35) !important;
+}
+.send-btn-active:hover {
+  box-shadow: 0 6px 20px hsl(229 84% 57% / 0.5) !important;
+  transform: translateY(-1px);
 }
 
 /* ── Sidebar ── */
 .app-shell aside {
-  background: hsl(0 0% 100% / 0.65) !important;
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
-  border-right: 1px solid hsl(0 0% 100% / 0.25) !important;
+  background: hsl(0 0% 100% / 0.62) !important;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-right: 1px solid hsl(220 20% 90% / 0.7) !important;
 }
 .dark .app-shell aside {
-  background: hsl(230 25% 11% / 0.78) !important;
-  border-right: 1px solid hsl(230 20% 100% / 0.07) !important;
+  background: hsl(225 20% 10% / 0.80) !important;
+  border-right: 1px solid hsl(225 15% 100% / 0.06) !important;
 }
 
 /* ── Cards ── */
 .app-shell .bg-card {
-  background: hsl(0 0% 100% / 0.65) !important;
+  background: hsl(0 0% 100% / 0.70) !important;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 }
 .dark .app-shell .bg-card {
-  background: hsl(230 22% 13% / 0.80) !important;
+  background: hsl(225 18% 12% / 0.85) !important;
 }
 
-/* ── Muted backgrounds (model-selector pill, buttons) ── */
+/* ── Muted backgrounds ── */
 .dark .app-shell .bg-muted\/60,
 .dark .app-shell .bg-muted {
-  background: hsl(230 20% 20% / 0.70) !important;
+  background: hsl(225 18% 20% / 0.70) !important;
 }
 
-/* ── Popover / dropdown (model selector panel) ── */
+/* ── Dropdown/popover ── */
 .dark [role="listbox"] {
-  background: hsl(230 22% 13% / 0.96) !important;
-  border-color: hsl(230 20% 30% / 0.55) !important;
+  background: hsl(225 20% 14% / 0.97) !important;
+  border-color: hsl(225 15% 30% / 0.55) !important;
   color: hsl(220 15% 88%) !important;
+}
+
+/* ── Mobile: sticky bar ── */
+@media (max-width: 639px) {
+  .chat-input-mobile-container {
+    background: hsl(0 0% 100% / 0.80);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-top: 1px solid hsl(220 20% 90% / 0.7);
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  }
+  .dark .chat-input-mobile-container {
+    background: hsl(225 20% 10% / 0.88);
+    border-top: 1px solid hsl(225 15% 100% / 0.07);
+  }
+  #model-selector-btn span { max-width: 130px; }
+  #chat-input { font-size: 14px; }
+}
+
+/* ── Desktop font fix ── */
+@media (min-width: 640px) {
+  #chat-input { font-size: 15px; }
+}
+
+/* ─── Chat Bubble Styles ───────────────────────────────────────────────────── */
+.user-bubble {
+  background: linear-gradient(135deg, hsl(229 84% 57%), hsl(265 80% 60%));
+  color: white;
+  border-radius: 18px 18px 4px 18px;
+  box-shadow: 0 2px 12px hsl(229 84% 57% / 0.2);
+}
+.assistant-bubble {
+  background: hsl(0 0% 100% / 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid hsl(220 20% 90% / 0.8);
+  border-radius: 18px 18px 18px 4px;
+}
+.dark .assistant-bubble {
+  background: hsl(225 18% 15% / 0.80);
+  border-color: hsl(225 15% 28% / 0.6);
+}
+
+/* ─── Model Selector Pill ──────────────────────────────────────────────────── */
+.model-pill {
+  background: hsl(220 20% 94% / 0.7);
+  border: 1px solid hsl(220 20% 88% / 0.8);
+  backdrop-filter: blur(8px);
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-muted-foreground);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.model-pill:hover, .model-pill[aria-expanded="true"] {
+  background: hsl(220 20% 90%);
+  color: var(--color-foreground);
+  border-color: hsl(229 84% 57% / 0.3);
+}
+.dark .model-pill {
+  background: hsl(225 18% 18% / 0.7);
+  border-color: hsl(225 15% 32% / 0.6);
+}
+.dark .model-pill:hover, .dark .model-pill[aria-expanded="true"] {
+  background: hsl(225 18% 22%);
+}
+
+/* ─── Chat Mode Badge (inside input container) ─────────────────────────────── */
+.chat-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 2px 10px 2px 7px;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  user-select: none;
+  text-transform: uppercase;
+  transition: background 0.2s, border-color 0.2s;
+}
+.chat-mode-badge--er {
+  background: hsl(229 84% 57% / 0.10);
+  border-color: hsl(229 84% 57% / 0.22);
+  color: hsl(229 84% 52%);
+}
+.dark .chat-mode-badge--er {
+  background: hsl(229 70% 55% / 0.14);
+  border-color: hsl(229 70% 55% / 0.28);
+  color: hsl(229 80% 72%);
+}
+.chat-mode-badge--hybrid {
+  background: hsl(183 70% 45% / 0.10);
+  border-color: hsl(183 70% 45% / 0.22);
+  color: hsl(183 65% 38%);
+}
+.dark .chat-mode-badge--hybrid {
+  background: hsl(183 55% 40% / 0.14);
+  border-color: hsl(183 55% 40% / 0.28);
+  color: hsl(183 70% 62%);
 }
