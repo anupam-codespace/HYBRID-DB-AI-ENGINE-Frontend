@@ -1,19 +1,18 @@
 import axios from 'axios'
+import { extractERFromText } from './erExtractor'
 
-const BASE_URL = import.meta.env.VITE_API_URL || '/api'
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 export const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 60000,
+  timeout: 10000,
 })
 
 api.interceptors.response.use(
   (res) => res,
-  (err) => {
-    const message = err.response?.data?.detail || err.message || 'An error occurred'
-    return Promise.reject(new Error(message))
-  }
+  (err) => Promise.reject(err)   // pass original AxiosError through unchanged
 )
+
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -94,16 +93,13 @@ export async function sendPrompt(
       session_id: sessionId,
     })
     return data
-  } catch (err: any) {
-    const status = err?.response?.status
-    if (status === 405 || status === 404 || !status) {
-      return {
-        message_id: 'offline-' + Date.now(),
-        content:
-          '⚠️ **Backend not connected.**\n\nThe AI backend is running locally. To use ER diagram generation:\n\n1. Open a terminal and run:\n```\ncd "ER model" && uvicorn api:app --port 8000\n```\n2. Then set `VITE_API_URL=http://localhost:8000` and restart the frontend.',
-      }
+  } catch {
+    // Backend offline — still respond helpfully
+    return {
+      message_id: 'local-' + Date.now(),
+      content:
+        `You said: "${prompt}"\n\nSwitch to **ER Model** mode and describe your domain (e.g. _"A student can enroll in many courses"_) to generate an ER diagram.`,
     }
-    throw err
   }
 }
 
@@ -118,16 +114,27 @@ export async function generateERDiagram(
       file_ids: fileIds,
     })
     return data
-  } catch (err: any) {
-    const status = err?.response?.status
-    if (status === 405 || status === 404 || !status) {
+  } catch {
+    // Backend offline — use client-side NLP extraction
+    const result = extractERFromText(prompt)
+    if (result) {
       return {
-        message_id: 'offline-er-' + Date.now(),
+        message_id: 'local-er-' + Date.now(),
         content:
-          '⚠️ **Backend not connected.**\n\nThe NLP backend needs to be running locally to generate ER diagrams.\n\n**Start it with:**\n```\ncd "ER model"\nsource ../.venv/bin/activate\nuvicorn api:app --reload --port 8000\n```\nThen refresh and try again.',
+          `Here is the ER diagram generated from your prompt:\n\n${result.summary}\n\n> ⚡ *Generated using browser-side extraction (backend offline)*`,
+        er_diagram: {
+          type: 'json',
+          data: '{}',
+          entities: result.entities,
+          relationships: result.relationships,
+        },
       }
     }
-    throw err
+    return {
+      message_id: 'local-er-fail-' + Date.now(),
+      content:
+        'Could not detect enough entities in your sentence. Try: _"A student can enroll in many courses"_',
+    }
   }
 }
 
