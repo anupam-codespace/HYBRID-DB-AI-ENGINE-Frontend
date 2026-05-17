@@ -384,10 +384,26 @@ export function ERDiagramCanvasEditor() {
         // We still proceed to update the local UI store below
       }
 
+      // Try to capture a snapshot of the current canvas to update the chat bubble preview
+      let snapshotData = '{}'
+      let finalType: 'png' | 'json' | 'svg' = 'json'
+      try {
+        if (reactFlowWrapperRef.current) {
+          // Import toPng dynamically if it's not available in scope, but it should be imported at top
+          const { toPng } = await import('html-to-image')
+          const dataUrl = await toPng(reactFlowWrapperRef.current, { backgroundColor: '#ffffff', pixelRatio: 2, filter: (node) => !node.classList?.contains('react-flow__controls') && !node.classList?.contains('react-flow__panel') })
+          snapshotData = dataUrl.split(',')[1] // remove data:image/png;base64,
+          finalType = 'png'
+        }
+      } catch (e) {
+        console.warn('Could not generate canvas snapshot', e)
+        finalType = 'json'
+      }
+
       // Update the global store message so the chat reflects the changes
       const newDiagramData = {
-        type: activeDiagram?.type ?? 'json',
-        data: '{}',
+        type: finalType,
+        data: snapshotData,
         entities,
         relationships,
       } as const
