@@ -117,10 +117,8 @@ export function extractERFromText(text: string): ExtractedER | null {
     if (!seen.has(w)) { seen.add(w); candidates.push(w) }
   }
 
-  if (candidates.length < 2) return null
-
-  const e1Name = candidates[0].charAt(0).toUpperCase() + candidates[0].slice(1)
-  const e2Name = candidates[1].charAt(0).toUpperCase() + candidates[1].slice(1)
+  const e1Name = (candidates[0] || 'Entity1').charAt(0).toUpperCase() + (candidates[0] || 'entity1').slice(1)
+  const e2Name = (candidates[1] || 'Entity2').charAt(0).toUpperCase() + (candidates[1] || 'entity2').slice(1)
   const relName = relation.charAt(0).toUpperCase() + relation.slice(1)
 
   const e1Id = uid(), e2Id = uid(), relId = uid()

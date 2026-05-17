@@ -94,11 +94,25 @@ export async function sendPrompt(
     })
     return data
   } catch {
-    // Backend offline — still respond helpfully
+    // Backend offline — try extracting ER diagram anyway
+    const result = extractERFromText(prompt)
+    if (result) {
+      return {
+        message_id: 'local-er-' + Date.now(),
+        content: `Here is the ER diagram generated from your prompt:\n\n${result.summary}\n\n> ⚡ *Generated using browser-side extraction (backend offline)*`,
+        er_diagram: {
+          type: 'json',
+          data: '{}',
+          entities: result.entities,
+          relationships: result.relationships,
+        },
+      }
+    }
+    // Completely fallback
     return {
       message_id: 'local-' + Date.now(),
       content:
-        `You said: "${prompt}"\n\nSwitch to **ER Model** mode and describe your domain (e.g. _"A student can enroll in many courses"_) to generate an ER diagram.`,
+        `You said: "${prompt}"\n\nTo generate an ER diagram, try a sentence like: _"A student can enroll in many courses"_.`,
     }
   }
 }
