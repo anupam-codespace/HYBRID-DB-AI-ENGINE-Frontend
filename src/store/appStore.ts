@@ -63,8 +63,9 @@ interface AppState {
   // ER Diagram editor
   erDiagramEditorOpen: boolean
   activeDiagram: ERDiagramData | null
+  activeDiagramMessageId: string | null
   setERDiagramEditorOpen: (open: boolean) => void
-  setActiveDiagram: (diagram: ERDiagramData | null) => void
+  setActiveDiagram: (diagram: ERDiagramData | null, messageId?: string) => void
 
   // All uploaded files in session
   sessionFiles: AttachedFile[]
@@ -128,8 +129,9 @@ export const useAppStore = create<AppState>((set) => ({
   // ER Diagram
   erDiagramEditorOpen: false,
   activeDiagram: null,
+  activeDiagramMessageId: null,
   setERDiagramEditorOpen: (open) => set({ erDiagramEditorOpen: open }),
-  setActiveDiagram: (diagram) => set({ activeDiagram: diagram }),
+  setActiveDiagram: (diagram, messageId) => set({ activeDiagram: diagram, activeDiagramMessageId: messageId ?? null }),
 
   // Session files
   sessionFiles: [],

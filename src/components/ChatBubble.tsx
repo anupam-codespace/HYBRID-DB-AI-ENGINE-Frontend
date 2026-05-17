@@ -52,7 +52,7 @@ function ERDiagramPreviewInline({ message }: { message: Message }) {
             variant="secondary"
             className="shadow-lg"
             onClick={() => {
-              setActiveDiagram(diagram)
+              setActiveDiagram(diagram, message.id)
               setERDiagramEditorOpen(true)
             }}
           >
@@ -77,7 +77,7 @@ function ERDiagramPreviewInline({ message }: { message: Message }) {
           variant="outline"
           className="h-7 text-xs gap-1.5"
           onClick={() => {
-            setActiveDiagram(diagram)
+            setActiveDiagram(diagram, message.id)
             setERDiagramEditorOpen(true)
           }}
           id={`edit-er-${message.id}`}

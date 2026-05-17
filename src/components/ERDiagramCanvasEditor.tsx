@@ -221,7 +221,7 @@ function UnsavedDialog({ open, onSave, onDiscard, onCancel }: {
 
 // ─── Main Canvas Editor ───────────────────────────────────────────────────────
 export function ERDiagramCanvasEditor() {
-  const { erDiagramEditorOpen, setERDiagramEditorOpen, activeDiagram, sessionId } = useAppStore()
+  const { erDiagramEditorOpen, setERDiagramEditorOpen, activeDiagram, activeDiagramMessageId, sessionId } = useAppStore()
   const { toast } = useToast()
 
   const [nodes, setNodes, onNodesChange] = useNodesState([])
@@ -374,11 +374,37 @@ export function ERDiagramCanvasEditor() {
     setSaving(true)
     try {
       const { entities, relationships } = buildPayload()
-      await saveERDiagram({ entities, relationships, sessionId })
+      
+      // We don't necessarily have to block on backend save if it's offline,
+      // but let's try.
+      try {
+        await saveERDiagram({ entities, relationships, sessionId })
+      } catch (e) {
+        console.warn('Backend save failed or offline', e)
+        // We still proceed to update the local UI store below
+      }
+
+      // Update the global store message so the chat reflects the changes
+      const newDiagramData = {
+        type: activeDiagram?.type ?? 'json',
+        data: '{}',
+        entities,
+        relationships,
+      } as const
+
+      if (activeDiagramMessageId) {
+        useAppStore.getState().updateMessage(activeDiagramMessageId, {
+          erDiagram: newDiagramData,
+        })
+      }
+      
+      // Update the active diagram so if they re-open, it has latest
+      useAppStore.getState().setActiveDiagram(newDiagramData, activeDiagramMessageId ?? undefined)
+
       setIsDirty(false)
       toast({ title: '✓ Diagram saved', variant: 'success' })
-    } catch {
-      toast({ title: 'Save failed', description: 'Could not reach backend.', variant: 'destructive' })
+    } catch (err) {
+      toast({ title: 'Save failed', description: 'An error occurred.', variant: 'destructive' })
     } finally { setSaving(false) }
   }
 
