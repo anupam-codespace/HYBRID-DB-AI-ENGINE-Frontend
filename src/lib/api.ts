@@ -109,104 +109,11 @@ export async function generateERDiagram(
   prompt: string,
   fileIds: string[] = []
 ): Promise<ChatResponse> {
-  try {
-    const { data } = await api.post<ChatResponse>('/er-diagram/generate', {
-      prompt,
-      file_ids: fileIds,
-    })
-    return data
-  } catch (err) {
-    // Fallback mock for Vercel deployment without backend
-    await new Promise(r => setTimeout(r, 2000))
-    
-    const e_emp = 'ent-emp'
-    const e_dept = 'ent-dept'
-    const e_proj = 'ent-proj'
-    const e_dep = 'ent-dep'
-    
-    return {
-      message_id: 'mock-er-' + Date.now(),
-      content: `I have generated the Entity-Relationship (ER) diagram based on your prompt.\n\n**Entities:** Employee, Department, Project, Dependant\n**Relationships:** appoints, works_on, manages, supports`,
-      er_diagram: {
-        type: 'json',
-        data: '{}',
-        entities: [
-          {
-            id: e_emp,
-            name: 'Employee',
-            attributes: [
-              { id: 'attr-emp-1', name: 'Emp_ID', type: 'VARCHAR', isPrimary: true },
-              { id: 'attr-emp-2', name: 'Emp_Name', type: 'VARCHAR' },
-              { id: 'attr-emp-3', name: 'Email', type: 'VARCHAR' },
-              { id: 'attr-emp-4', name: 'DOB', type: 'DATE' },
-              { id: 'attr-emp-5', name: 'Phone', type: 'VARCHAR', isMultiValued: true }
-            ],
-            position: { x: 400, y: 300 }
-          },
-          {
-            id: e_dept,
-            name: 'Department',
-            attributes: [
-              { id: 'attr-dept-1', name: 'Dept_ID', type: 'VARCHAR', isPrimary: true },
-              { id: 'attr-dept-2', name: 'Contact', type: 'VARCHAR', isMultiValued: true },
-              { id: 'attr-dept-3', name: 'Dept_Name', type: 'VARCHAR' }
-            ],
-            position: { x: 100, y: 100 }
-          },
-          {
-            id: e_proj,
-            name: 'Project',
-            attributes: [
-              { id: 'attr-proj-1', name: 'Proj_ID', type: 'VARCHAR', isPrimary: true },
-              { id: 'attr-proj-2', name: 'Proj_Name', type: 'VARCHAR' },
-              { id: 'attr-proj-3', name: 'Proj_Type', type: 'VARCHAR' }
-            ],
-            position: { x: 700, y: 100 }
-          },
-          {
-            id: e_dep,
-            name: 'Dependant',
-            attributes: [
-              { id: 'attr-dep-1', name: 'Relation', type: 'VARCHAR' },
-              { id: 'attr-dep-2', name: 'Dpd_Name', type: 'VARCHAR' },
-              { id: 'attr-dep-3', name: 'Gender', type: 'VARCHAR' }
-            ],
-            position: { x: 400, y: 550 }
-          }
-        ],
-        relationships: [
-          {
-            id: 'rel-1',
-            source: e_dept,
-            target: e_emp,
-            label: 'appoints',
-            cardinality: '1:N'
-          },
-          {
-            id: 'rel-2',
-            source: e_emp,
-            target: e_proj,
-            label: 'works_on',
-            cardinality: 'M:N'
-          },
-          {
-            id: 'rel-3',
-            source: e_dept,
-            target: e_proj,
-            label: 'manages',
-            cardinality: '1:N'
-          },
-          {
-            id: 'rel-4',
-            source: e_emp,
-            target: e_dep,
-            label: 'supports',
-            cardinality: '1:N'
-          }
-        ]
-      }
-    }
-  }
+  const { data } = await api.post<ChatResponse>('/er-diagram/generate', {
+    prompt,
+    file_ids: fileIds,
+  })
+  return data
 }
 
 /** Save edited ER diagram back to the backend */
