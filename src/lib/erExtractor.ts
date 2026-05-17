@@ -50,35 +50,9 @@ const VERB_MAP: Record<string, string> = {
   lend:'lends', lends:'lends',
 }
 
-const DOMAIN_ATTRS: Record<string, Array<[string, string]>> = {
-  student:    [['Name','VARCHAR'],['Email','VARCHAR'],['DOB','DATE']],
-  course:     [['Title','VARCHAR'],['Credits','INT'],['Duration','VARCHAR']],
-  courses:    [['Title','VARCHAR'],['Credits','INT'],['Duration','VARCHAR']],
-  teacher:    [['Name','VARCHAR'],['Designation','VARCHAR'],['Email','VARCHAR']],
-  employee:   [['Name','VARCHAR'],['Department','VARCHAR'],['Salary','DECIMAL']],
-  department: [['Dept_Name','VARCHAR'],['Location','VARCHAR']],
-  project:    [['Title','VARCHAR'],['Budget','DECIMAL'],['Deadline','DATE']],
-  customer:   [['Name','VARCHAR'],['Phone','VARCHAR'],['Address','VARCHAR']],
-  order:      [['Order_Date','DATE'],['Amount','DECIMAL'],['Status','VARCHAR']],
-  product:    [['Name','VARCHAR'],['Price','DECIMAL'],['Stock','INT']],
-  book:       [['Title','VARCHAR'],['Author','VARCHAR'],['ISBN','VARCHAR']],
-  library:    [['Name','VARCHAR'],['Location','VARCHAR']],
-  doctor:     [['Name','VARCHAR'],['Specialization','VARCHAR'],['Phone','VARCHAR']],
-  patient:    [['Name','VARCHAR'],['Age','INT'],['Diagnosis','VARCHAR']],
-  patients:   [['Name','VARCHAR'],['Age','INT'],['Diagnosis','VARCHAR']],
-  hospital:   [['Name','VARCHAR'],['Address','VARCHAR']],
-  author:     [['Name','VARCHAR'],['Bio','TEXT'],['Nationality','VARCHAR']],
-  driver:     [['Name','VARCHAR'],['License','VARCHAR'],['Phone','VARCHAR']],
-  vehicle:    [['Model','VARCHAR'],['Plate','VARCHAR'],['Year','INT']],
-  class:      [['Name','VARCHAR'],['Room','VARCHAR'],['Schedule','VARCHAR']],
-}
-
 function buildAttrs(name: string): Attr[] {
-  const key = name.toLowerCase()
-  const extras = DOMAIN_ATTRS[key] ?? [['Name','VARCHAR'],['Description','TEXT']]
   return [
     { id: uid(), name: `${name}_ID`, type: 'INT', isPrimary: true },
-    ...extras.map(([n, t]) => ({ id: uid(), name: n, type: t, isPrimary: false })),
   ]
 }
 
