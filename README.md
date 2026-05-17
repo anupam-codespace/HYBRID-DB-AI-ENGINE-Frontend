@@ -1,7 +1,7 @@
-# HYBRID DB AI ENGINE - Frontend
+# HYBRID DB AI ENGINE
 
 ## Project Overview
-The HYBRID DB AI ENGINE Frontend is a modern, responsive web application designed to act as the primary interface for our intelligent database architecture system. It bridges the gap between unstructured data and structured database schemas. By combining natural language processing capabilities with a visual diagramming tool, this application allows users to seamlessly convert data structures, CSV files, and textual descriptions into production-ready Entity-Relationship (ER) schemas.
+The HYBRID DB AI ENGINE is a modern, responsive web application designed to act as the primary interface for our intelligent database architecture system. It bridges the gap between unstructured data and structured database schemas. By combining natural language processing capabilities with a visual diagramming tool, this application allows users to seamlessly convert data structures, CSV files, and textual descriptions into production-ready Entity-Relationship (ER) schemas.
 
 ## Core Objective
 The primary focus of this application is to accelerate database architecture and design. Users can expect a highly intuitive interface that simplifies complex schema generation, offering intelligent suggestions for both SQL and NoSQL database structures based on provided context.
