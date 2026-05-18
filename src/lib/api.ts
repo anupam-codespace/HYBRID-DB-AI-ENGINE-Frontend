@@ -99,7 +99,7 @@ export async function sendPrompt(
     if (result) {
       return {
         message_id: 'local-er-' + Date.now(),
-        content: `Here is the ER diagram generated from your prompt:\n\n${result.summary}\n\n> ⚡ *Generated using browser-side extraction (backend offline)*`,
+        content: `Here is the ER diagram generated from your prompt:\n\n${result.summary}`,
         er_diagram: {
           type: 'json',
           data: '{}',
