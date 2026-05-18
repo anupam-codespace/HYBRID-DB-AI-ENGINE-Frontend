@@ -143,6 +143,6 @@ export const useAppStore = create<AppState>((set) => ({
   setIsGenerating: (v) => set({ isGenerating: v }),
 
   // Model selection
-  selectedModel: null,
+  selectedModel: 'er',
   setSelectedModel: (model) => set({ selectedModel: model }),
 }))

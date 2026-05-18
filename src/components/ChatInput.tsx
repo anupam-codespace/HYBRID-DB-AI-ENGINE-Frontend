@@ -33,8 +33,8 @@ import { cn } from '@/lib/utils'
 // ─── Model Options ────────────────────────────────────────────────────────────
 
 const MODEL_OPTIONS = [
-  { value: 'er',     label: 'ER Model',             desc: 'Entity-Relationship diagrams' },
-  { value: 'hybrid', label: 'Hybrid Database Model', desc: 'Multi-model schema design' },
+  { value: 'er',     label: 'ER Model',             desc: 'Entity-Relationship diagrams', disabled: false },
+  { value: 'hybrid', label: 'Hybrid Database Model', desc: '(Adding soon) Multi-model schema', disabled: true },
 ] as const
 
 type ModelValue = typeof MODEL_OPTIONS[number]['value']
@@ -89,9 +89,11 @@ function ModelSelector() {
               key={opt.value}
               role="option"
               aria-selected={selectedModel === opt.value}
-              onClick={() => { setSelectedModel(opt.value as ModelValue); setOpen(false) }}
+              disabled={opt.disabled}
+              onClick={() => { if (!opt.disabled) { setSelectedModel(opt.value as ModelValue); setOpen(false) } }}
               className={cn(
-                'w-full flex items-start justify-between gap-2 px-3 py-3 text-sm transition-colors hover:bg-muted/60 text-left',
+                'w-full flex items-start justify-between gap-2 px-3 py-3 text-sm transition-colors text-left',
+                opt.disabled ? 'opacity-50 cursor-not-allowed grayscale' : 'hover:bg-muted/60',
                 selectedModel === opt.value ? 'text-primary' : 'text-foreground'
               )}
             >
