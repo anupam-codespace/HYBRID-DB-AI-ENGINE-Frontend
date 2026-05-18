@@ -20,6 +20,7 @@ export default function App() {
       {/* Animated gradient background */}
       <div className="app-bg-wrapper">
         <div className="app-bg-gradient" aria-hidden="true" />
+        <div className="app-bg-lines" aria-hidden="true" />
       </div>
 
       <div className="flex flex-col h-screen overflow-hidden text-foreground app-shell">
