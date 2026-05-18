@@ -49,8 +49,8 @@ function InlineLabel({
         onChange={e => onChange(e.target.value)}
         onBlur={() => setEditing(false)}
         onKeyDown={e => { if (e.key === 'Enter') setEditing(false); if (e.key === 'Escape') setEditing(false) }}
-        className={cn('bg-transparent border-b border-black outline-none text-center font-bold w-full', className)}
-        style={{ minWidth: 60 }}
+        className={cn('bg-white dark:bg-zinc-900 border border-primary/40 rounded px-2 outline-none text-center focus:ring-2 focus:ring-primary/20 w-full text-zinc-900 dark:text-zinc-100', className)}
+        style={{ minWidth: 80 }}
       />
     )
   }
@@ -58,45 +58,57 @@ function InlineLabel({
     <span
       onDoubleClick={() => setEditing(true)}
       title="Double-click to rename"
-      className={cn('cursor-text select-none', className)}
+      className={cn('cursor-text select-none hover:opacity-75 transition-opacity', className)}
     >
       {value || ' '}
     </span>
   )
 }
 
-// ─── Custom Classic ER Nodes ──────────────────────────────────────────────────
+// ─── Professional Modern ER Nodes ──────────────────────────────────────────────────
 function ClassicEntityNode({ id, data }: { id: string; data: any }) {
   return (
-    <div className="relative bg-white border-2 border-black min-w-[130px] px-6 py-3 font-bold text-black text-center shadow-none group">
+    <div className="relative bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl min-w-[160px] shadow-sm hover:shadow-md transition-all duration-200 group overflow-visible">
       <Handle type="target" position={Position.Top} className="opacity-0" />
       <Handle type="source" position={Position.Bottom} className="opacity-0" />
       <Handle type="source" position={Position.Left} className="opacity-0" />
       <Handle type="source" position={Position.Right} className="opacity-0" />
-      <InlineLabel value={data.label} onChange={v => data.onRename(id, v)} />
-      <button
-        onClick={e => { e.stopPropagation(); data.onAddAttr(id) }}
-        className="absolute -bottom-3 -right-3 bg-white border border-black rounded-full p-1 shadow-sm hover:bg-gray-100 transition-colors z-10 opacity-0 group-hover:opacity-100"
-        title="Add Attribute"
-      >
-        <Plus className="h-3 w-3 text-black" />
-      </button>
-      <button
-        onClick={e => { e.stopPropagation(); data.onDelete(id) }}
-        className="absolute -top-3 -right-3 bg-red-500 border border-black rounded-full p-1 shadow-sm hover:bg-red-600 transition-colors z-10 opacity-0 group-hover:opacity-100"
-        title="Delete Entity"
-      >
-        <X className="h-3 w-3 text-white" />
-      </button>
+      
+      <div className="bg-blue-50/80 dark:bg-blue-900/20 px-4 py-2.5 border-b border-zinc-100 dark:border-zinc-800 rounded-t-xl flex justify-center items-center">
+        <InlineLabel value={data.label} onChange={v => data.onRename(id, v)} className="text-sm font-semibold text-blue-700 dark:text-blue-400" />
+      </div>
+      <div className="px-4 py-2 text-[10px] text-zinc-500 dark:text-zinc-400 text-center uppercase tracking-wider font-medium">
+        Entity
+      </div>
+
+      <div className="absolute -bottom-3 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+        <button
+          onClick={e => { e.stopPropagation(); data.onAddAttr(id) }}
+          className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-full p-1.5 shadow-sm hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 transition-colors"
+          title="Add Attribute"
+        >
+          <Plus className="h-3 w-3" />
+        </button>
+      </div>
+      <div className="absolute -top-3 -right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+        <button
+          onClick={e => { e.stopPropagation(); data.onDelete(id) }}
+          className="bg-red-500 border border-red-600 rounded-full p-1 shadow-sm hover:bg-red-600 text-white transition-colors"
+          title="Delete Entity"
+        >
+          <X className="h-3 w-3" />
+        </button>
+      </div>
     </div>
   )
 }
 
 function ClassicRelationshipNode({ id, data }: { id: string; data: any }) {
   return (
-    <div className="relative bg-white border-2 border-black w-28 h-28 flex items-center justify-center font-bold text-black transform rotate-45 shadow-none group">
-      <div className="transform -rotate-45 flex flex-col items-center gap-0.5 px-2">
-        <InlineLabel value={data.label} onChange={v => data.onRename(id, v)} className="text-sm" />
+    <div className="relative group flex items-center justify-center w-28 h-28">
+      <div className="absolute inset-0 bg-emerald-50/80 dark:bg-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-800 transform rotate-45 shadow-sm group-hover:shadow-md transition-shadow rounded-sm" />
+      <div className="relative z-10 flex flex-col items-center px-2 text-center">
+        <InlineLabel value={data.label} onChange={v => data.onRename(id, v)} className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-transparent" />
       </div>
       <Handle type="target" position={Position.Top} className="opacity-0" />
       <Handle type="source" position={Position.Bottom} className="opacity-0" />
@@ -104,10 +116,10 @@ function ClassicRelationshipNode({ id, data }: { id: string; data: any }) {
       <Handle type="source" position={Position.Right} className="opacity-0" />
       <button
         onClick={e => { e.stopPropagation(); data.onDelete(id) }}
-        className="absolute -top-2 -right-2 transform -rotate-45 bg-red-500 border border-black rounded-full p-1 shadow-sm hover:bg-red-600 transition-colors z-10 opacity-0 group-hover:opacity-100"
+        className="absolute -top-1 -right-1 bg-red-500 border border-red-600 rounded-full p-1 shadow-sm hover:bg-red-600 transition-colors z-20 opacity-0 group-hover:opacity-100 text-white"
         title="Delete Relationship"
       >
-        <X className="h-2 w-2 text-white" />
+        <X className="h-2.5 w-2.5" />
       </button>
     </div>
   )
@@ -116,21 +128,20 @@ function ClassicRelationshipNode({ id, data }: { id: string; data: any }) {
 function ClassicAttributeNode({ id, data }: { id: string; data: any }) {
   return (
     <div className={cn(
-      'relative bg-white rounded-[50%] px-4 py-2 font-bold text-black text-xs text-center shadow-none min-w-[90px] group',
-      data.isMultiValued ? 'border-[4px] border-double border-black' : 'border-2 border-black'
+      'relative bg-white dark:bg-zinc-900 rounded-full px-4 py-2 text-xs text-center shadow-sm hover:shadow-md transition-shadow min-w-[100px] group flex items-center justify-center',
+      data.isMultiValued ? 'border-4 border-double border-amber-200 dark:border-amber-800/60' : 'border border-zinc-200 dark:border-zinc-800'
     )}>
       <Handle type="target" position={Position.Top} className="opacity-0" />
       <Handle type="source" position={Position.Bottom} className="opacity-0" />
-      {data.isPrimary
-        ? <u className="underline underline-offset-2"><InlineLabel value={data.label} onChange={v => data.onRename(id, v)} /></u>
-        : <InlineLabel value={data.label} onChange={v => data.onRename(id, v)} />
-      }
+      <span className={cn("font-medium text-zinc-700 dark:text-zinc-300", data.isPrimary && "underline underline-offset-4 decoration-amber-500 font-bold")}>
+        <InlineLabel value={data.label} onChange={v => data.onRename(id, v)} />
+      </span>
       <button
         onClick={e => { e.stopPropagation(); data.onDelete(id) }}
-        className="absolute -top-2 -right-2 bg-red-500 border border-black rounded-full p-0.5 shadow-sm hover:bg-red-600 transition-colors z-10 opacity-0 group-hover:opacity-100"
+        className="absolute -top-2 -right-2 bg-red-500 border border-red-600 rounded-full p-1 shadow-sm hover:bg-red-600 transition-colors z-10 opacity-0 group-hover:opacity-100 text-white"
         title="Delete Attribute"
       >
-        <X className="h-2.5 w-2.5 text-white" />
+        <X className="h-2 w-2" />
       </button>
     </div>
   )
@@ -256,7 +267,7 @@ export function ERDiagramCanvasEditor() {
           data: { label: attr.name, isPrimary: attr.isPrimary, isMultiValued: attr.isMultiValued },
           className: 'group',
         })
-        initialEdges.push({ id: `ea-${ent.id}-${attr.id}`, source: ent.id, target: attr.id, type: 'straight', style: { stroke: '#000', strokeWidth: 1 } })
+        initialEdges.push({ id: `ea-${ent.id}-${attr.id}`, source: ent.id, target: attr.id, type: 'smoothstep', style: { stroke: '#94a3b8', strokeWidth: 1.5 }, animated: false })
       })
     })
 
@@ -273,8 +284,8 @@ export function ERDiagramCanvasEditor() {
         className: 'group',
       })
       const cards = rel.cardinality?.split(':') ?? ['1', 'N']
-      initialEdges.push({ id: `er1-${rel.id}`, source: rel.source, target: rel.id, type: 'straight', label: cards[0], style: { stroke: '#000', strokeWidth: 1.5 } })
-      initialEdges.push({ id: `er2-${rel.id}`, source: rel.id, target: rel.target, type: 'straight', label: cards[1], style: { stroke: '#000', strokeWidth: 1.5 } })
+      initialEdges.push({ id: `er1-${rel.id}`, source: rel.source, target: rel.id, type: 'smoothstep', label: cards[0], labelStyle: { fill: '#64748b', fontWeight: 600, fontSize: 12 }, style: { stroke: '#94a3b8', strokeWidth: 2 } })
+      initialEdges.push({ id: `er2-${rel.id}`, source: rel.id, target: rel.target, type: 'smoothstep', label: cards[1], labelStyle: { fill: '#64748b', fontWeight: 600, fontSize: 12 }, style: { stroke: '#94a3b8', strokeWidth: 2 } })
     })
 
     setNodes(initialNodes)
@@ -304,7 +315,7 @@ export function ERDiagramCanvasEditor() {
   }))
 
   const onConnect = useCallback((params: Connection) =>
-    setEdges(es => { markDirty(); return addEdge({ ...params, type: 'straight', style: { stroke: '#000', strokeWidth: 1.5 } }, es) }),
+    setEdges(es => { markDirty(); return addEdge({ ...params, type: 'smoothstep', style: { stroke: '#94a3b8', strokeWidth: 2 } }, es) }),
     [setEdges])
 
   const addEntity = () => {
@@ -339,7 +350,7 @@ export function ERDiagramCanvasEditor() {
       data: { label: attr.name, isPrimary: attr.isPrimary, isMultiValued: attr.isMultiValued },
       className: 'group',
     }])
-    setEdges(es => [...es, { id: `ea-${targetEntityId}-${attr.id}`, source: targetEntityId, target: attr.id, type: 'straight', style: { stroke: '#000', strokeWidth: 1 } }])
+    setEdges(es => [...es, { id: `ea-${targetEntityId}-${attr.id}`, source: targetEntityId, target: attr.id, type: 'smoothstep', style: { stroke: '#94a3b8', strokeWidth: 1.5 } }])
     setAttrDialogOpen(false)
     markDirty()
   }
@@ -380,11 +391,18 @@ export function ERDiagramCanvasEditor() {
       let finalType: 'png' | 'json' | 'svg' = 'json'
       try {
         if (reactFlowWrapperRef.current) {
-          // Import toPng dynamically if it's not available in scope, but it should be imported at top
-          const { toPng } = await import('html-to-image')
-          const dataUrl = await toPng(reactFlowWrapperRef.current, { backgroundColor: '#ffffff', pixelRatio: 2, filter: (node) => !node.classList?.contains('react-flow__controls') && !node.classList?.contains('react-flow__panel') })
-          snapshotData = dataUrl.split(',')[1] // remove data:image/png;base64,
-          finalType = 'png'
+          const flowEl = reactFlowWrapperRef.current.querySelector('.react-flow__viewport') as HTMLElement | null
+          if (flowEl) {
+            const dataUrl = await toPng(flowEl, { 
+              backgroundColor: 'transparent', 
+              pixelRatio: 2,
+              style: {
+                transform: 'translate(0, 0) scale(1)' // Temporarily reset transform for clean snapshot
+              }
+            })
+            snapshotData = dataUrl.split(',')[1] // remove data:image/png;base64,
+            finalType = 'png'
+          }
         }
       } catch (e) {
         console.warn('Could not generate canvas snapshot', e)
@@ -515,9 +533,10 @@ export function ERDiagramCanvasEditor() {
             fitViewOptions={{ padding: 0.25 }}
             deleteKeyCode="Delete"
             proOptions={{ hideAttribution: true }}
+            className="bg-slate-50 dark:bg-zinc-950"
           >
-            <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="#e5e5e5" />
-            <Controls className="!bg-white !border-black !shadow-sm" />
+            <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#cbd5e1" />
+            <Controls className="!bg-white dark:!bg-zinc-800 !border-zinc-200 dark:!border-zinc-700 !shadow-sm !rounded-md overflow-hidden [&>button]:!border-b-zinc-200 dark:[&>button]:!border-b-zinc-700 [&>button]:!text-zinc-600 dark:[&>button]:!text-zinc-300 hover:[&>button]:!bg-zinc-50 dark:hover:[&>button]:!bg-zinc-700" />
             <Panel position="bottom-center">
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/80 backdrop-blur-sm border border-border text-xs text-muted-foreground shadow-lg">
                 <span>{nodes.filter(n => n.type === 'classicEntity').length} entities</span>
