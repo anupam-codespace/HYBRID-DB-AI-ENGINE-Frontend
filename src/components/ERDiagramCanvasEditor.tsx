@@ -154,7 +154,7 @@ const nodeTypes = {
 }
 
 // ─── Add-Attribute Dialog ─────────────────────────────────────────────────────
-const SQL_DATATYPES = ['VARCHAR', 'INT', 'FLOAT', 'DATE', 'DATETIME', 'BOOLEAN', 'TEXT', 'JSON', 'BLOB']
+const SQL_DATATYPES = ['INT', 'DECIMAL', 'VARCHAR', 'TEXT', 'DATE', 'TIMESTAMP', 'BOOLEAN']
 
 function AttrDialog({ open, onClose, onSave }: { open: boolean; onClose: () => void; onSave: (a: ERAttribute) => void }) {
   const [step, setStep] = useState(1)
