@@ -128,7 +128,7 @@ function ClassicRelationshipNode({ id, data }: { id: string; data: any }) {
 function ClassicAttributeNode({ id, data }: { id: string; data: any }) {
   return (
     <div className={cn(
-      'relative bg-white dark:bg-zinc-900 rounded-full px-4 py-2 text-xs text-center shadow-sm hover:shadow-md transition-shadow min-w-[100px] group flex items-center justify-center',
+      'relative bg-white dark:bg-zinc-900 rounded-[50%] px-4 py-2 text-xs text-center shadow-sm hover:shadow-md transition-shadow min-w-[120px] h-[55px] group flex items-center justify-center',
       data.isMultiValued ? 'border-4 border-double border-amber-200 dark:border-amber-800/60' : 'border border-zinc-200 dark:border-zinc-800'
     )}>
       <Handle type="target" position={Position.Top} className="opacity-0" />
@@ -138,7 +138,7 @@ function ClassicAttributeNode({ id, data }: { id: string; data: any }) {
       </span>
       <button
         onClick={e => { e.stopPropagation(); data.onDelete(id) }}
-        className="absolute -top-2 -right-2 bg-red-500 border border-red-600 rounded-full p-1 shadow-sm hover:bg-red-600 transition-colors z-10 opacity-0 group-hover:opacity-100 text-white"
+        className="absolute -top-1 -right-1 bg-red-500 border border-red-600 rounded-full p-1 shadow-sm hover:bg-red-600 transition-colors z-10 opacity-0 group-hover:opacity-100 text-white"
         title="Delete Attribute"
       >
         <X className="h-2 w-2" />
@@ -154,42 +154,126 @@ const nodeTypes = {
 }
 
 // ─── Add-Attribute Dialog ─────────────────────────────────────────────────────
+const SQL_DATATYPES = ['VARCHAR', 'INT', 'FLOAT', 'DATE', 'DATETIME', 'BOOLEAN', 'TEXT', 'JSON', 'BLOB']
+
 function AttrDialog({ open, onClose, onSave }: { open: boolean; onClose: () => void; onSave: (a: ERAttribute) => void }) {
+  const [step, setStep] = useState(1)
   const [name, setName] = useState('')
   const [isPrimary, setIsPrimary] = useState(false)
   const [isMultiValued, setIsMultiValued] = useState(false)
+  const [dataType, setDataType] = useState('VARCHAR')
+  const [dataStructure, setDataStructure] = useState<'Structured' | 'Unstructured' | ''>('')
+
+  useEffect(() => {
+    if (open) {
+      setStep(1)
+      setName('')
+      setIsPrimary(false)
+      setIsMultiValued(false)
+      setDataType('VARCHAR')
+      setDataStructure('')
+    }
+  }, [open])
+
+  const handleNext = () => {
+    if (step === 1 && name.trim()) setStep(2)
+    else if (step === 2 && dataType) setStep(3)
+  }
 
   const handleSave = () => {
-    if (!name.trim()) return
-    onSave({ id: generateId(), name: name.trim(), type: 'VARCHAR', isPrimary, isMultiValued })
-    setName(''); setIsPrimary(false); setIsMultiValued(false)
+    if (step !== 3 || !dataStructure) return
+    onSave({ id: generateId(), name: name.trim(), type: dataType, isPrimary, isMultiValued })
     onClose()
   }
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
       <DialogContent className="max-w-sm">
-        <DialogHeader><DialogTitle>Add Attribute</DialogTitle></DialogHeader>
-        <div className="space-y-3 pt-2">
-          <input
-            autoFocus value={name} onChange={e => setName(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleSave()}
-            placeholder="e.g. student_name"
-            className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-          />
-          <div className="flex gap-4">
-            {[['Primary Key', isPrimary, setIsPrimary] as const, ['Multi-Valued', isMultiValued, setIsMultiValued] as const].map(([lbl, val, set]) => (
-              <label key={lbl} className="flex items-center gap-1.5 text-xs cursor-pointer">
-                <input type="checkbox" checked={val} onChange={e => (set as any)(e.target.checked)} className="accent-primary" />
-                {lbl}
-              </label>
-            ))}
+        <DialogHeader>
+          <DialogTitle>
+            {step === 1 && "Add Attribute"}
+            {step === 2 && "Select Datatype"}
+            {step === 3 && "Data Structure"}
+          </DialogTitle>
+        </DialogHeader>
+        
+        {step === 1 && (
+          <div className="space-y-4 pt-2">
+            <input
+              autoFocus value={name} onChange={e => setName(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleNext()}
+              placeholder="e.g. student_name"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+            <div className="flex gap-4">
+              {[['Primary Key', isPrimary, setIsPrimary] as const, ['Multi-Valued', isMultiValued, setIsMultiValued] as const].map(([lbl, val, set]) => (
+                <label key={lbl} className="flex items-center gap-1.5 text-xs cursor-pointer">
+                  <input type="checkbox" checked={val} onChange={e => (set as any)(e.target.checked)} className="accent-primary" />
+                  {lbl}
+                </label>
+              ))}
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button variant="outline" size="sm" className="flex-1" onClick={onClose}>Cancel</Button>
+              <Button size="sm" className="flex-1" onClick={handleNext} disabled={!name.trim()}>Next</Button>
+            </div>
           </div>
-          <div className="flex gap-2 pt-1">
-            <Button variant="outline" size="sm" className="flex-1" onClick={onClose}>Cancel</Button>
-            <Button size="sm" className="flex-1" onClick={handleSave}>Add</Button>
+        )}
+
+        {step === 2 && (
+          <div className="space-y-4 pt-2">
+            <div className="grid grid-cols-3 gap-2">
+              {SQL_DATATYPES.map(type => (
+                <button
+                  key={type}
+                  onClick={() => setDataType(type)}
+                  className={cn(
+                    "px-2 py-1.5 text-xs rounded-md border font-medium transition-colors",
+                    dataType === type ? "bg-primary text-primary-foreground border-primary" : "bg-background border-input hover:bg-muted"
+                  )}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button variant="outline" size="sm" className="flex-1" onClick={() => setStep(1)}>Back</Button>
+              <Button size="sm" className="flex-1" onClick={handleNext} disabled={!dataType}>Next</Button>
+            </div>
           </div>
-        </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <button
+                onClick={() => setDataStructure('Structured')}
+                className={cn(
+                  "w-full text-left p-3 rounded-md border transition-colors",
+                  dataStructure === 'Structured' ? "bg-primary/10 border-primary" : "bg-background border-input hover:bg-muted"
+                )}
+              >
+                <div className="font-semibold text-sm">Structured Data</div>
+                <div className="text-xs text-muted-foreground mt-1">Data that resides in fixed fields within a record (e.g., Numbers, Dates, Short Strings). Ideal for strict SQL tables.</div>
+              </button>
+              
+              <button
+                onClick={() => setDataStructure('Unstructured')}
+                className={cn(
+                  "w-full text-left p-3 rounded-md border transition-colors",
+                  dataStructure === 'Unstructured' ? "bg-primary/10 border-primary" : "bg-background border-input hover:bg-muted"
+                )}
+              >
+                <div className="font-semibold text-sm">Unstructured Data</div>
+                <div className="text-xs text-muted-foreground mt-1">Data that doesn't fit neatly into traditional rows and columns (e.g., Long text, JSON, Images, Documents).</div>
+              </button>
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button variant="outline" size="sm" className="flex-1" onClick={() => setStep(2)}>Back</Button>
+              <Button size="sm" className="flex-1" onClick={handleSave} disabled={!dataStructure}>Add Attribute</Button>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   )
