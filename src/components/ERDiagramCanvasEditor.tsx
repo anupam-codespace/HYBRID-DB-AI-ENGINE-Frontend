@@ -154,7 +154,7 @@ const nodeTypes = {
 }
 
 // ─── Add-Attribute Dialog ─────────────────────────────────────────────────────
-const SQL_DATATYPES = ['INT', 'DECIMAL', 'VARCHAR', 'TEXT', 'DATE', 'TIMESTAMP', 'BOOLEAN']
+const SQL_DATATYPES = ['INT', 'DECIMAL', 'VARCHAR', 'TEXT', 'DATE', 'TIMESTAMP', 'BOOLEAN', 'IMAGE', 'PDF']
 
 function AttrDialog({ open, onClose, onSave }: { open: boolean; onClose: () => void; onSave: (a: ERAttribute) => void }) {
   const [step, setStep] = useState(1)
@@ -162,7 +162,6 @@ function AttrDialog({ open, onClose, onSave }: { open: boolean; onClose: () => v
   const [isPrimary, setIsPrimary] = useState(false)
   const [isMultiValued, setIsMultiValued] = useState(false)
   const [dataType, setDataType] = useState('VARCHAR')
-  const [dataStructure, setDataStructure] = useState<'Structured' | 'Unstructured' | ''>('')
 
   useEffect(() => {
     if (open) {
@@ -171,17 +170,15 @@ function AttrDialog({ open, onClose, onSave }: { open: boolean; onClose: () => v
       setIsPrimary(false)
       setIsMultiValued(false)
       setDataType('VARCHAR')
-      setDataStructure('')
     }
   }, [open])
 
   const handleNext = () => {
     if (step === 1 && name.trim()) setStep(2)
-    else if (step === 2 && dataType) setStep(3)
   }
 
   const handleSave = () => {
-    if (step !== 3 || !dataStructure) return
+    if (step !== 2 || !dataType) return
     onSave({ id: generateId(), name: name.trim(), type: dataType, isPrimary, isMultiValued })
     onClose()
   }
@@ -193,7 +190,6 @@ function AttrDialog({ open, onClose, onSave }: { open: boolean; onClose: () => v
           <DialogTitle>
             {step === 1 && "Add Attribute"}
             {step === 2 && "Select Datatype"}
-            {step === 3 && "Data Structure"}
           </DialogTitle>
         </DialogHeader>
         
@@ -238,39 +234,7 @@ function AttrDialog({ open, onClose, onSave }: { open: boolean; onClose: () => v
             </div>
             <div className="flex gap-2 pt-2">
               <Button variant="outline" size="sm" className="flex-1" onClick={() => setStep(1)}>Back</Button>
-              <Button size="sm" className="flex-1" onClick={handleNext} disabled={!dataType}>Next</Button>
-            </div>
-          </div>
-        )}
-
-        {step === 3 && (
-          <div className="space-y-4 pt-2">
-            <div className="space-y-2">
-              <button
-                onClick={() => setDataStructure('Structured')}
-                className={cn(
-                  "w-full text-left p-3 rounded-md border transition-colors",
-                  dataStructure === 'Structured' ? "bg-primary/10 border-primary" : "bg-background border-input hover:bg-muted"
-                )}
-              >
-                <div className="font-semibold text-sm">Structured Data</div>
-                <div className="text-xs text-muted-foreground mt-1">Data that resides in fixed fields within a record (e.g., Numbers, Dates, Short Strings). Ideal for strict SQL tables.</div>
-              </button>
-              
-              <button
-                onClick={() => setDataStructure('Unstructured')}
-                className={cn(
-                  "w-full text-left p-3 rounded-md border transition-colors",
-                  dataStructure === 'Unstructured' ? "bg-primary/10 border-primary" : "bg-background border-input hover:bg-muted"
-                )}
-              >
-                <div className="font-semibold text-sm">Unstructured Data</div>
-                <div className="text-xs text-muted-foreground mt-1">Data that doesn't fit neatly into traditional rows and columns (e.g., Long text, JSON, Images, Documents).</div>
-              </button>
-            </div>
-            <div className="flex gap-2 pt-2">
-              <Button variant="outline" size="sm" className="flex-1" onClick={() => setStep(2)}>Back</Button>
-              <Button size="sm" className="flex-1" onClick={handleSave} disabled={!dataStructure}>Add Attribute</Button>
+              <Button size="sm" className="flex-1" onClick={handleSave} disabled={!dataType}>Add Attribute</Button>
             </div>
           </div>
         )}
