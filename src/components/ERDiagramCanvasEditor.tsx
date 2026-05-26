@@ -147,19 +147,17 @@ function ClassicRelationshipNode({ id, data }: { id: string; data: any }) {
 function ClassicAttributeNode({ id, data }: { id: string; data: any }) {
   return (
     <div
-      onDoubleClick={e => { e.stopPropagation(); data.onEdit?.(id) }}
       className={cn(
-        'relative bg-white dark:bg-zinc-900 rounded-[50%] px-4 py-2 text-xs text-center shadow-sm hover:shadow-md transition-shadow min-w-[120px] h-[55px] group flex items-center justify-center cursor-pointer select-none',
+        'relative bg-white dark:bg-zinc-900 rounded-[50%] px-4 py-2 text-xs text-center shadow-sm hover:shadow-md transition-shadow min-w-[120px] h-[55px] group flex items-center justify-center select-none',
         data.isMultiValued ? 'border-4 border-double border-zinc-300 dark:border-zinc-600' : 'border border-zinc-200 dark:border-zinc-800'
       )}
-      title="Double-click to edit"
     >
       <Handle type="target" position={Position.Top} className="opacity-0" />
       <Handle type="source" position={Position.Bottom} className="opacity-0" />
       <span className={cn('font-medium text-zinc-700 dark:text-zinc-300', data.isPrimary && 'underline underline-offset-4 decoration-zinc-500 font-bold')}>
         {data.label || ' '}
       </span>
-      {/* Edit pencil on hover */}
+      {/* Edit pencil — only trigger for edit */}
       <button
         onClick={e => { e.stopPropagation(); data.onEdit?.(id) }}
         className="absolute -bottom-1 -right-1 bg-zinc-700 dark:bg-zinc-200 border border-zinc-600 dark:border-zinc-300 rounded-full p-1 shadow-sm hover:bg-zinc-600 dark:hover:bg-zinc-100 transition-colors z-10 opacity-0 group-hover:opacity-100 text-white dark:text-zinc-800"
@@ -734,7 +732,7 @@ export function ERDiagramCanvasEditor() {
                 ER Diagram Editor
                 {isDirty && <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400">● Unsaved</span>}
               </h2>
-              <p className="text-[10px] text-muted-foreground">Double-click attribute ovals to edit · Hover entity nodes to add attrs, toggle weak, or delete</p>
+              <p className="text-[10px] text-muted-foreground">Hover attributes to edit via pencil · Hover entity nodes to add attrs, toggle weak, or delete</p>
             </div>
           </div>
 
