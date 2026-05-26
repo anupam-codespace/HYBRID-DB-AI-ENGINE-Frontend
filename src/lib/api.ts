@@ -53,6 +53,7 @@ export interface ERAttribute {
   isForeign?: boolean
   isNullable?: boolean
   isMultiValued?: boolean
+  position?: { x: number; y: number }
 }
 
 export interface ERRelationship {

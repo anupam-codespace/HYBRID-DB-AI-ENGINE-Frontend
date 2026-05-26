@@ -72,7 +72,7 @@ function ClassicEntityNode({ id, data }: { id: string; data: any }) {
     <div className={cn(
       'relative bg-white dark:bg-zinc-900 rounded-xl min-w-[160px] shadow-sm hover:shadow-md transition-all duration-200 group overflow-visible',
       isWeak
-        ? 'border-[3px] border-double border-blue-400 dark:border-blue-500 ring-2 ring-blue-200 dark:ring-blue-900/60'
+        ? 'border-2 border-zinc-400 dark:border-zinc-500 outline outline-[3px] outline-offset-[3px] outline-zinc-300 dark:outline-zinc-600'
         : 'border border-zinc-200 dark:border-zinc-800'
     )}>
       <Handle type="target" position={Position.Top} className="opacity-0" />
@@ -80,20 +80,10 @@ function ClassicEntityNode({ id, data }: { id: string; data: any }) {
       <Handle type="source" position={Position.Left} className="opacity-0" />
       <Handle type="source" position={Position.Right} className="opacity-0" />
 
-      {/* Weak entity badge */}
-      {isWeak && (
-        <div className="absolute -top-2 left-1/2 -translate-x-1/2 flex items-center gap-0.5 px-1.5 py-0.5 bg-blue-500 text-white rounded-full text-[9px] font-bold tracking-wide shadow-sm z-10 whitespace-nowrap">
-          <ShieldAlert className="h-2.5 w-2.5" /> Weak
-        </div>
-      )}
-
-      <div className={cn(
-        'px-4 py-2.5 border-b rounded-t-xl flex justify-center items-center',
-        isWeak ? 'bg-blue-100/80 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800' : 'bg-blue-50/80 dark:bg-blue-900/20 border-zinc-100 dark:border-zinc-800'
-      )}>
+      <div className="bg-blue-50/80 dark:bg-blue-900/20 px-4 py-2.5 border-b border-zinc-100 dark:border-zinc-800 rounded-t-xl flex justify-center items-center">
         <InlineLabel value={data.label} onChange={v => data.onRename(id, v)} className="text-sm font-semibold text-blue-700 dark:text-blue-400" />
       </div>
-      <div className="px-4 py-2 text-[10px] text-zinc-500 dark:text-zinc-400 text-center uppercase tracking-wider font-medium">
+      <div className="px-4 py-2 text-[10px] text-zinc-400 dark:text-zinc-500 text-center uppercase tracking-wider font-medium">
         {isWeak ? 'Weak Entity' : 'Entity'}
       </div>
 
@@ -111,10 +101,10 @@ function ClassicEntityNode({ id, data }: { id: string; data: any }) {
           className={cn(
             'border rounded-full p-1.5 shadow-sm transition-colors',
             isWeak
-              ? 'bg-blue-500 border-blue-600 hover:bg-blue-600 text-white'
-              : 'bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 hover:bg-blue-50 dark:hover:bg-zinc-700 text-blue-500 dark:text-blue-400'
+              ? 'bg-zinc-700 border-zinc-600 hover:bg-zinc-600 text-white dark:bg-zinc-200 dark:border-zinc-300 dark:hover:bg-zinc-300 dark:text-zinc-800'
+              : 'bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400'
           )}
-          title={isWeak ? 'Remove Weak Entity' : 'Mark as Weak Entity'}
+          title={isWeak ? 'Unmark Weak Entity' : 'Mark as Weak Entity'}
         >
           <ShieldAlert className="h-3 w-3" />
         </button>
@@ -160,35 +150,24 @@ function ClassicAttributeNode({ id, data }: { id: string; data: any }) {
       onDoubleClick={e => { e.stopPropagation(); data.onEdit?.(id) }}
       className={cn(
         'relative bg-white dark:bg-zinc-900 rounded-[50%] px-4 py-2 text-xs text-center shadow-sm hover:shadow-md transition-shadow min-w-[120px] h-[55px] group flex items-center justify-center cursor-pointer select-none',
-        data.isMultiValued ? 'border-4 border-double border-amber-200 dark:border-amber-800/60' : 'border border-zinc-200 dark:border-zinc-800'
+        data.isMultiValued ? 'border-4 border-double border-zinc-300 dark:border-zinc-600' : 'border border-zinc-200 dark:border-zinc-800'
       )}
       title="Double-click to edit"
     >
       <Handle type="target" position={Position.Top} className="opacity-0" />
       <Handle type="source" position={Position.Bottom} className="opacity-0" />
-      <div className="flex flex-col items-center gap-0.5">
-        <span className={cn('font-medium text-zinc-700 dark:text-zinc-300 leading-none', data.isPrimary && 'underline underline-offset-4 decoration-amber-500 font-bold')}>
-          {data.label || ' '}
-        </span>
-        {data.dataType && (
-          <span className="text-[9px] text-zinc-400 dark:text-zinc-500 leading-none">{data.dataType}</span>
-        )}
-        <div className="flex gap-0.5 mt-0.5">
-          {data.isPrimary && <span className="text-[8px] bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 px-1 rounded font-bold">PK</span>}
-          {data.isForeign && <span className="text-[8px] bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-400 px-1 rounded font-bold">FK</span>}
-          {data.isMultiValued && <span className="text-[8px] bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-500 px-1 rounded">MV</span>}
-          {data.isNullable && <span className="text-[8px] bg-zinc-100 text-zinc-500 dark:bg-zinc-800 px-1 rounded">NULL</span>}
-        </div>
-      </div>
-      {/* Edit button on hover */}
+      <span className={cn('font-medium text-zinc-700 dark:text-zinc-300', data.isPrimary && 'underline underline-offset-4 decoration-zinc-500 font-bold')}>
+        {data.label || ' '}
+      </span>
+      {/* Edit pencil on hover */}
       <button
         onClick={e => { e.stopPropagation(); data.onEdit?.(id) }}
-        className="absolute -bottom-1 -left-1 bg-blue-500 border border-blue-600 rounded-full p-1 shadow-sm hover:bg-blue-600 transition-colors z-10 opacity-0 group-hover:opacity-100 text-white"
+        className="absolute -bottom-1 -right-1 bg-zinc-700 dark:bg-zinc-200 border border-zinc-600 dark:border-zinc-300 rounded-full p-1 shadow-sm hover:bg-zinc-600 dark:hover:bg-zinc-100 transition-colors z-10 opacity-0 group-hover:opacity-100 text-white dark:text-zinc-800"
         title="Edit Attribute"
       >
         <Pencil className="h-2 w-2" />
       </button>
-      {/* Delete button on hover */}
+      {/* Delete on hover */}
       <button
         onClick={e => { e.stopPropagation(); data.onDelete(id) }}
         className="absolute -top-1 -right-1 bg-red-500 border border-red-600 rounded-full p-1 shadow-sm hover:bg-red-600 transition-colors z-10 opacity-0 group-hover:opacity-100 text-white"
@@ -491,10 +470,12 @@ export function ERDiagramCanvasEditor() {
         const radius = 140
         const ex = ent.position?.x ?? (150 + i * 420)
         const ey = ent.position?.y ?? 260
+        // Use saved position if present (user dragged it), else circular fallback
+        const attrPos = attr.position ?? { x: ex + Math.cos(angle) * radius, y: ey + Math.sin(angle) * radius - 20 }
         initialNodes.push({
           id: attr.id,
           type: 'classicAttribute',
-          position: { x: ex + Math.cos(angle) * radius, y: ey + Math.sin(angle) * radius - 20 },
+          position: attrPos,
           data: { label: attr.name, isPrimary: attr.isPrimary ?? false, isForeign: attr.isForeign ?? false, isMultiValued: attr.isMultiValued ?? false, isNullable: attr.isNullable ?? false, dataType: attr.type ?? 'VARCHAR' },
           className: 'group',
         })
@@ -630,7 +611,7 @@ export function ERDiagramCanvasEditor() {
       attributes: edges.filter(e => e.source === n.id)
         .map(e => nodes.find(an => an.id === e.target && an.type === 'classicAttribute'))
         .filter((an): an is Node => Boolean(an))
-        .map(an => ({ id: an.id, name: an.data.label, type: an.data.dataType ?? 'VARCHAR', isPrimary: an.data.isPrimary ?? false, isForeign: an.data.isForeign ?? false, isMultiValued: an.data.isMultiValued ?? false, isNullable: an.data.isNullable ?? false }))
+        .map(an => ({ id: an.id, name: an.data.label, type: an.data.dataType ?? 'VARCHAR', isPrimary: an.data.isPrimary ?? false, isForeign: an.data.isForeign ?? false, isMultiValued: an.data.isMultiValued ?? false, isNullable: an.data.isNullable ?? false, position: an.position }))
     }))
     const relationships: ERRelationship[] = nodes.filter(n => n.type === 'classicRelationship').map(n => {
       const inEdge = edges.find(e => e.target === n.id)
@@ -719,11 +700,13 @@ export function ERDiagramCanvasEditor() {
     try {
       let blob: Blob
       if (format === 'svg') {
-        const dataUrl = await toSvg(reactFlowWrapperRef.current!, { backgroundColor: '#ffffff' })
-        blob = dataURLToBlob(dataUrl)
+        const dataUrl = await toPng(flowEl, { backgroundColor: '#ffffff', pixelRatio: 2 })
+        // Wrap PNG in an SVG container for SVG download
+        const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${nodesBounds.width + 80}" height="${nodesBounds.height + 80}"><image href="${dataUrl}" width="100%" height="100%"/></svg>`
+        blob = new Blob([svgContent], { type: 'image/svg+xml' })
         downloadBlob(blob, 'er_diagram.svg')
       } else {
-        const dataUrl = await toPng(reactFlowWrapperRef.current!, { backgroundColor: '#ffffff', pixelRatio: 2 })
+        const dataUrl = await toPng(flowEl, { backgroundColor: '#ffffff', pixelRatio: 2 })
         blob = dataURLToBlob(dataUrl)
         downloadBlob(blob, 'er_diagram.png')
       }

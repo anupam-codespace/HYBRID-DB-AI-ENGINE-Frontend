@@ -10,6 +10,7 @@ declare global {
 interface ISpeechRecognition extends EventTarget {
   lang: string
   interimResults: boolean
+  continuous: boolean
   maxAlternatives: number
   start(): void
   stop(): void
@@ -131,6 +132,7 @@ function MicButton({ onTranscript }: { onTranscript: (text: string) => void }) {
     const recognition: ISpeechRecognition = new SRClass()
     recognition.lang = 'en-US'
     recognition.interimResults = false
+    recognition.continuous = false
     recognition.maxAlternatives = 1
     recognitionRef.current = recognition
     recognition.onstart = () => setListening(true)
@@ -141,7 +143,10 @@ function MicButton({ onTranscript }: { onTranscript: (text: string) => void }) {
         toast({ title: 'Mic error', description: e.error, variant: 'destructive' })
       }
     }
-    recognition.onresult = (e) => { onTranscript(e.results[0][0].transcript) }
+    recognition.onresult = (e) => {
+      recognition.stop()
+      onTranscript(e.results[0][0].transcript)
+    }
     recognition.start()
   }, [supported, onTranscript, toast])
 
