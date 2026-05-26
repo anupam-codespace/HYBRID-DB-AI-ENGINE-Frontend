@@ -17,7 +17,7 @@ import ReactFlow, {
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 import { toPng, toSvg } from 'html-to-image'
-import { Plus, Save, X, Download, AlertTriangle, ShieldAlert } from 'lucide-react'
+import { Plus, Save, X, Download, AlertTriangle, ShieldAlert, Pencil } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/store/appStore'
@@ -156,15 +156,39 @@ function ClassicRelationshipNode({ id, data }: { id: string; data: any }) {
 
 function ClassicAttributeNode({ id, data }: { id: string; data: any }) {
   return (
-    <div className={cn(
-      'relative bg-white dark:bg-zinc-900 rounded-[50%] px-4 py-2 text-xs text-center shadow-sm hover:shadow-md transition-shadow min-w-[120px] h-[55px] group flex items-center justify-center',
-      data.isMultiValued ? 'border-4 border-double border-amber-200 dark:border-amber-800/60' : 'border border-zinc-200 dark:border-zinc-800'
-    )}>
+    <div
+      onDoubleClick={e => { e.stopPropagation(); data.onEdit?.(id) }}
+      className={cn(
+        'relative bg-white dark:bg-zinc-900 rounded-[50%] px-4 py-2 text-xs text-center shadow-sm hover:shadow-md transition-shadow min-w-[120px] h-[55px] group flex items-center justify-center cursor-pointer select-none',
+        data.isMultiValued ? 'border-4 border-double border-amber-200 dark:border-amber-800/60' : 'border border-zinc-200 dark:border-zinc-800'
+      )}
+      title="Double-click to edit"
+    >
       <Handle type="target" position={Position.Top} className="opacity-0" />
       <Handle type="source" position={Position.Bottom} className="opacity-0" />
-      <span className={cn("font-medium text-zinc-700 dark:text-zinc-300", data.isPrimary && "underline underline-offset-4 decoration-amber-500 font-bold")}>
-        <InlineLabel value={data.label} onChange={v => data.onRename(id, v)} />
-      </span>
+      <div className="flex flex-col items-center gap-0.5">
+        <span className={cn('font-medium text-zinc-700 dark:text-zinc-300 leading-none', data.isPrimary && 'underline underline-offset-4 decoration-amber-500 font-bold')}>
+          {data.label || ' '}
+        </span>
+        {data.dataType && (
+          <span className="text-[9px] text-zinc-400 dark:text-zinc-500 leading-none">{data.dataType}</span>
+        )}
+        <div className="flex gap-0.5 mt-0.5">
+          {data.isPrimary && <span className="text-[8px] bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 px-1 rounded font-bold">PK</span>}
+          {data.isForeign && <span className="text-[8px] bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-400 px-1 rounded font-bold">FK</span>}
+          {data.isMultiValued && <span className="text-[8px] bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-500 px-1 rounded">MV</span>}
+          {data.isNullable && <span className="text-[8px] bg-zinc-100 text-zinc-500 dark:bg-zinc-800 px-1 rounded">NULL</span>}
+        </div>
+      </div>
+      {/* Edit button on hover */}
+      <button
+        onClick={e => { e.stopPropagation(); data.onEdit?.(id) }}
+        className="absolute -bottom-1 -left-1 bg-blue-500 border border-blue-600 rounded-full p-1 shadow-sm hover:bg-blue-600 transition-colors z-10 opacity-0 group-hover:opacity-100 text-white"
+        title="Edit Attribute"
+      >
+        <Pencil className="h-2 w-2" />
+      </button>
+      {/* Delete button on hover */}
       <button
         onClick={e => { e.stopPropagation(); data.onDelete(id) }}
         className="absolute -top-1 -right-1 bg-red-500 border border-red-600 rounded-full p-1 shadow-sm hover:bg-red-600 transition-colors z-10 opacity-0 group-hover:opacity-100 text-white"
@@ -272,6 +296,134 @@ function AttrDialog({ open, onClose, onSave }: { open: boolean; onClose: () => v
   )
 }
 
+// ─── Edit-Attribute Dialog ───────────────────────────────────────────────────
+interface EditAttrInitial {
+  id: string
+  name: string
+  dataType: string
+  isPrimary: boolean
+  isForeign: boolean
+  isMultiValued: boolean
+  isNullable: boolean
+}
+
+function EditAttrDialog({
+  open, initial, onClose, onSave,
+}: {
+  open: boolean
+  initial: EditAttrInitial | null
+  onClose: () => void
+  onSave: (updated: EditAttrInitial) => void
+}) {
+  const [name, setName] = useState('')
+  const [dataType, setDataType] = useState('VARCHAR')
+  const [isPrimary, setIsPrimary] = useState(false)
+  const [isForeign, setIsForeign] = useState(false)
+  const [isMultiValued, setIsMultiValued] = useState(false)
+  const [isNullable, setIsNullable] = useState(false)
+
+  useEffect(() => {
+    if (open && initial) {
+      setName(initial.name)
+      setDataType(initial.dataType || 'VARCHAR')
+      setIsPrimary(initial.isPrimary)
+      setIsForeign(initial.isForeign)
+      setIsMultiValued(initial.isMultiValued)
+      setIsNullable(initial.isNullable)
+    }
+  }, [open, initial])
+
+  const handleSave = () => {
+    if (!name.trim() || !initial) return
+    onSave({ id: initial.id, name: name.trim(), dataType, isPrimary, isForeign, isMultiValued, isNullable })
+    onClose()
+  }
+
+  const toggles: [string, boolean, (v: boolean) => void, string][] = [
+    ['Primary Key', isPrimary, setIsPrimary, 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-700'],
+    ['Foreign Key', isForeign, setIsForeign, 'bg-violet-100 text-violet-700 border-violet-300 dark:bg-violet-900/30 dark:text-violet-400 dark:border-violet-700'],
+    ['Multi-Valued', isMultiValued, setIsMultiValued, 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/20 dark:text-amber-500 dark:border-amber-800'],
+    ['Nullable', isNullable, setIsNullable, 'bg-zinc-100 text-zinc-600 border-zinc-300 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-600'],
+  ]
+
+  return (
+    <Dialog open={open} onOpenChange={v => !v && onClose()}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Pencil className="h-4 w-4 text-blue-500" />
+            Edit Attribute
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 pt-1">
+          {/* Name */}
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-muted-foreground">Attribute Name</label>
+            <input
+              autoFocus
+              value={name}
+              onChange={e => setName(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSave()}
+              placeholder="e.g. student_name"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+          </div>
+
+          {/* Datatype */}
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-muted-foreground">Data Type</label>
+            <div className="grid grid-cols-3 gap-2">
+              {SQL_DATATYPES.map(type => (
+                <button
+                  key={type}
+                  onClick={() => setDataType(type)}
+                  className={cn(
+                    'px-2 py-1.5 text-xs rounded-md border font-medium transition-colors',
+                    dataType === type ? 'bg-primary text-primary-foreground border-primary' : 'bg-background border-input hover:bg-muted'
+                  )}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Toggle flags */}
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-muted-foreground">Flags</label>
+            <div className="grid grid-cols-2 gap-2">
+              {toggles.map(([lbl, val, set, activeClass]) => (
+                <button
+                  key={lbl}
+                  type="button"
+                  onClick={() => set(!val)}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-2 rounded-md border text-xs font-medium transition-all',
+                    val ? activeClass : 'bg-background border-input text-muted-foreground hover:bg-muted'
+                  )}
+                >
+                  <span className={cn(
+                    'inline-flex h-3.5 w-3.5 rounded-sm border items-center justify-center text-[10px] flex-shrink-0 transition-colors',
+                    val ? 'bg-current border-current text-white' : 'border-muted-foreground'
+                  )}>
+                    {val && '✓'}
+                  </span>
+                  {lbl}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex gap-2 pt-1">
+            <Button variant="outline" size="sm" className="flex-1" onClick={onClose}>Cancel</Button>
+            <Button size="sm" className="flex-1" onClick={handleSave} disabled={!name.trim()}>Save Changes</Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 // ─── Unsaved-Changes Guard Dialog ─────────────────────────────────────────────
 function UnsavedDialog({ open, onSave, onDiscard, onCancel }: {
   open: boolean; onSave: () => void; onDiscard: () => void; onCancel: () => void
@@ -310,6 +462,8 @@ export function ERDiagramCanvasEditor() {
   const [attrDialogOpen, setAttrDialogOpen] = useState(false)
   const [unsavedDialogOpen, setUnsavedDialogOpen] = useState(false)
   const [targetEntityId, setTargetEntityId] = useState<string | null>(null)
+  const [editAttrDialogOpen, setEditAttrDialogOpen] = useState(false)
+  const [editAttrInitial, setEditAttrInitial] = useState<EditAttrInitial | null>(null)
   const reactFlowWrapperRef = useRef<HTMLDivElement>(null)
 
   // Mark dirty on any change
@@ -341,7 +495,7 @@ export function ERDiagramCanvasEditor() {
           id: attr.id,
           type: 'classicAttribute',
           position: { x: ex + Math.cos(angle) * radius, y: ey + Math.sin(angle) * radius - 20 },
-          data: { label: attr.name, isPrimary: attr.isPrimary, isMultiValued: attr.isMultiValued },
+          data: { label: attr.name, isPrimary: attr.isPrimary ?? false, isForeign: attr.isForeign ?? false, isMultiValued: attr.isMultiValued ?? false, isNullable: attr.isNullable ?? false, dataType: attr.type ?? 'VARCHAR' },
           className: 'group',
         })
         initialEdges.push({ id: `ea-${ent.id}-${attr.id}`, source: ent.id, target: attr.id, type: 'smoothstep', style: { stroke: '#94a3b8', strokeWidth: 1.5 }, animated: false })
@@ -395,9 +549,37 @@ export function ERDiagramCanvasEditor() {
     setTargetEntityId(entityId); setAttrDialogOpen(true)
   }, [])
 
+  const openEditAttrDialog = useCallback((attrId: string) => {
+    setNodes(ns => {
+      const node = ns.find(n => n.id === attrId && n.type === 'classicAttribute')
+      if (node) {
+        setEditAttrInitial({
+          id: attrId,
+          name: node.data.label,
+          dataType: node.data.dataType ?? 'VARCHAR',
+          isPrimary: node.data.isPrimary ?? false,
+          isForeign: node.data.isForeign ?? false,
+          isMultiValued: node.data.isMultiValued ?? false,
+          isNullable: node.data.isNullable ?? false,
+        })
+        setEditAttrDialogOpen(true)
+      }
+      return ns // no mutation
+    })
+  }, [setNodes])
+
+  const saveEditedAttribute = useCallback((updated: EditAttrInitial) => {
+    setNodes(ns => ns.map(n =>
+      n.id === updated.id && n.type === 'classicAttribute'
+        ? { ...n, data: { ...n.data, label: updated.name, dataType: updated.dataType, isPrimary: updated.isPrimary, isForeign: updated.isForeign, isMultiValued: updated.isMultiValued, isNullable: updated.isNullable } }
+        : n
+    ))
+    markDirty()
+  }, [setNodes])
+
   const patchedNodes = nodes.map(n => ({
     ...n,
-    data: { ...n.data, onDelete: deleteNode, onAddAttr: openAttrDialog, onRename: renameNode, onToggleWeak: toggleWeakEntity },
+    data: { ...n.data, onDelete: deleteNode, onAddAttr: openAttrDialog, onRename: renameNode, onToggleWeak: toggleWeakEntity, onEdit: openEditAttrDialog },
   }))
 
   const onConnect = useCallback((params: Connection) =>
@@ -433,7 +615,7 @@ export function ERDiagramCanvasEditor() {
     setNodes(ns => [...ns, {
       id: attr.id, type: 'classicAttribute',
       position: { x: entityNode.position.x + 130, y: entityNode.position.y - 70 },
-      data: { label: attr.name, isPrimary: attr.isPrimary, isMultiValued: attr.isMultiValued },
+      data: { label: attr.name, isPrimary: attr.isPrimary ?? false, isForeign: false, isMultiValued: attr.isMultiValued ?? false, isNullable: false, dataType: attr.type ?? 'VARCHAR' },
       className: 'group',
     }])
     setEdges(es => [...es, { id: `ea-${targetEntityId}-${attr.id}`, source: targetEntityId, target: attr.id, type: 'smoothstep', style: { stroke: '#94a3b8', strokeWidth: 1.5 } }])
@@ -448,7 +630,7 @@ export function ERDiagramCanvasEditor() {
       attributes: edges.filter(e => e.source === n.id)
         .map(e => nodes.find(an => an.id === e.target && an.type === 'classicAttribute'))
         .filter((an): an is Node => Boolean(an))
-        .map(an => ({ id: an.id, name: an.data.label, type: 'VARCHAR', isPrimary: an.data.isPrimary, isMultiValued: an.data.isMultiValued }))
+        .map(an => ({ id: an.id, name: an.data.label, type: an.data.dataType ?? 'VARCHAR', isPrimary: an.data.isPrimary ?? false, isForeign: an.data.isForeign ?? false, isMultiValued: an.data.isMultiValued ?? false, isNullable: an.data.isNullable ?? false }))
     }))
     const relationships: ERRelationship[] = nodes.filter(n => n.type === 'classicRelationship').map(n => {
       const inEdge = edges.find(e => e.target === n.id)
@@ -569,7 +751,7 @@ export function ERDiagramCanvasEditor() {
                 ER Diagram Editor
                 {isDirty && <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400">● Unsaved</span>}
               </h2>
-              <p className="text-[10px] text-muted-foreground">Double-click any label to rename · Hover nodes to add attrs or delete</p>
+              <p className="text-[10px] text-muted-foreground">Double-click attribute ovals to edit · Hover entity nodes to add attrs, toggle weak, or delete</p>
             </div>
           </div>
 
@@ -640,6 +822,12 @@ export function ERDiagramCanvasEditor() {
         onSave={async () => { await handleSave(); setUnsavedDialogOpen(false); setERDiagramEditorOpen(false) }}
         onDiscard={() => { setUnsavedDialogOpen(false); setIsDirty(false); setERDiagramEditorOpen(false) }}
         onCancel={() => setUnsavedDialogOpen(false)}
+      />
+      <EditAttrDialog
+        open={editAttrDialogOpen}
+        initial={editAttrInitial}
+        onClose={() => setEditAttrDialogOpen(false)}
+        onSave={saveEditedAttribute}
       />
     </>
   )
