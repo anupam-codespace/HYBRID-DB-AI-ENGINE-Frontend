@@ -17,7 +17,7 @@ interface ISpeechRecognition extends EventTarget {
   onstart: (() => void) | null
   onend: (() => void) | null
   onerror: ((e: { error: string }) => void) | null
-  onresult: ((e: { results: { [k: number]: { [k: number]: { transcript: string } } } }) => void) | null
+  onresult: ((e: { results: { [k: number]: { [k: number]: { transcript: string } }; length: number } }) => void) | null
 }
 
 import { ArrowUp, Sparkles, X, Mic, MicOff, ChevronDown, Check, Paperclip } from 'lucide-react'
@@ -117,49 +117,69 @@ function ModelSelector() {
 function MicButton({ onTranscript }: { onTranscript: (text: string) => void }) {
   const [listening, setListening] = useState(false)
   const recognitionRef = useRef<ISpeechRecognition | null>(null)
+  const resultHandledRef = useRef(false)   // guard: fire transcript exactly once
   const { toast } = useToast()
 
   const supported =
     typeof window !== 'undefined' &&
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
 
+  const stopAndClean = useCallback(() => {
+    try { recognitionRef.current?.stop() } catch {}
+    recognitionRef.current = null
+    setListening(false)
+  }, [])
+
   const startListening = useCallback(() => {
     if (!supported) {
       toast({ title: 'Not supported', description: 'Speech recognition is not available in this browser.', variant: 'destructive' })
       return
     }
+    // Tear down any previous instance cleanly
+    try { recognitionRef.current?.stop() } catch {}
+    recognitionRef.current = null
+    resultHandledRef.current = false
+
     const SRClass = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     const recognition: ISpeechRecognition = new SRClass()
     recognition.lang = 'en-US'
-    recognition.interimResults = false
-    recognition.continuous = false
+    recognition.interimResults = false   // final results only
+    recognition.continuous = false       // single utterance
     recognition.maxAlternatives = 1
     recognitionRef.current = recognition
+
     recognition.onstart = () => setListening(true)
-    recognition.onend = () => setListening(false)
-    recognition.onerror = (e) => {
-      setListening(false)
-      if (e.error !== 'no-speech' && e.error !== 'aborted') {
-        toast({ title: 'Mic error', description: e.error, variant: 'destructive' })
-      }
-    }
+
     recognition.onresult = (e) => {
-      recognition.stop()
-      onTranscript(e.results[0][0].transcript)
+      // Guard: only fire once, no matter how many result events arrive
+      if (resultHandledRef.current) return
+      resultHandledRef.current = true
+      // Pick the highest-confidence final result
+      const transcript = e.results[e.results.length - 1][0].transcript.trim()
+      if (transcript) onTranscript(transcript)
+      // Abort immediately to prevent any further events
+      try { recognition.stop() } catch {}
     }
+
+    recognition.onerror = (e) => {
+      if (e.error === 'no-speech' || e.error === 'aborted') return
+      toast({ title: 'Mic error', description: e.error, variant: 'destructive' })
+    }
+
+    recognition.onend = () => {
+      // Only reset listening state; never restart
+      setListening(false)
+      recognitionRef.current = null
+    }
+
     recognition.start()
   }, [supported, onTranscript, toast])
-
-  const stopListening = useCallback(() => {
-    recognitionRef.current?.stop()
-    setListening(false)
-  }, [])
 
   return (
     <button
       id="mic-btn"
       type="button"
-      onClick={listening ? stopListening : startListening}
+      onClick={listening ? stopAndClean : startListening}
       aria-label={listening ? 'Stop recording' : 'Start voice input'}
       className={cn(
         'flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center transition-all',
