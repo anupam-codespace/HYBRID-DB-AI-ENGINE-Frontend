@@ -42,6 +42,7 @@ export interface EREntity {
   name: string
   attributes: ERAttribute[]
   position?: { x: number; y: number }
+  isWeak?: boolean
 }
 
 export interface ERAttribute {

@@ -17,7 +17,7 @@ import ReactFlow, {
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 import { toPng, toSvg } from 'html-to-image'
-import { Plus, Save, X, Tag, Download, AlertTriangle } from 'lucide-react'
+import { Plus, Save, X, Download, AlertTriangle, ShieldAlert } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/store/appStore'
@@ -67,27 +67,56 @@ function InlineLabel({
 
 // ─── Professional Modern ER Nodes ──────────────────────────────────────────────────
 function ClassicEntityNode({ id, data }: { id: string; data: any }) {
+  const isWeak: boolean = !!data.isWeak
   return (
-    <div className="relative bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl min-w-[160px] shadow-sm hover:shadow-md transition-all duration-200 group overflow-visible">
+    <div className={cn(
+      'relative bg-white dark:bg-zinc-900 rounded-xl min-w-[160px] shadow-sm hover:shadow-md transition-all duration-200 group overflow-visible',
+      isWeak
+        ? 'border-[3px] border-double border-blue-400 dark:border-blue-500 ring-2 ring-blue-200 dark:ring-blue-900/60'
+        : 'border border-zinc-200 dark:border-zinc-800'
+    )}>
       <Handle type="target" position={Position.Top} className="opacity-0" />
       <Handle type="source" position={Position.Bottom} className="opacity-0" />
       <Handle type="source" position={Position.Left} className="opacity-0" />
       <Handle type="source" position={Position.Right} className="opacity-0" />
-      
-      <div className="bg-blue-50/80 dark:bg-blue-900/20 px-4 py-2.5 border-b border-zinc-100 dark:border-zinc-800 rounded-t-xl flex justify-center items-center">
+
+      {/* Weak entity badge */}
+      {isWeak && (
+        <div className="absolute -top-2 left-1/2 -translate-x-1/2 flex items-center gap-0.5 px-1.5 py-0.5 bg-blue-500 text-white rounded-full text-[9px] font-bold tracking-wide shadow-sm z-10 whitespace-nowrap">
+          <ShieldAlert className="h-2.5 w-2.5" /> Weak
+        </div>
+      )}
+
+      <div className={cn(
+        'px-4 py-2.5 border-b rounded-t-xl flex justify-center items-center',
+        isWeak ? 'bg-blue-100/80 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800' : 'bg-blue-50/80 dark:bg-blue-900/20 border-zinc-100 dark:border-zinc-800'
+      )}>
         <InlineLabel value={data.label} onChange={v => data.onRename(id, v)} className="text-sm font-semibold text-blue-700 dark:text-blue-400" />
       </div>
       <div className="px-4 py-2 text-[10px] text-zinc-500 dark:text-zinc-400 text-center uppercase tracking-wider font-medium">
-        Entity
+        {isWeak ? 'Weak Entity' : 'Entity'}
       </div>
 
-      <div className="absolute -bottom-3 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+      {/* Bottom action bar on hover */}
+      <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
         <button
           onClick={e => { e.stopPropagation(); data.onAddAttr(id) }}
           className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-full p-1.5 shadow-sm hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 transition-colors"
           title="Add Attribute"
         >
           <Plus className="h-3 w-3" />
+        </button>
+        <button
+          onClick={e => { e.stopPropagation(); data.onToggleWeak(id) }}
+          className={cn(
+            'border rounded-full p-1.5 shadow-sm transition-colors',
+            isWeak
+              ? 'bg-blue-500 border-blue-600 hover:bg-blue-600 text-white'
+              : 'bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 hover:bg-blue-50 dark:hover:bg-zinc-700 text-blue-500 dark:text-blue-400'
+          )}
+          title={isWeak ? 'Remove Weak Entity' : 'Mark as Weak Entity'}
+        >
+          <ShieldAlert className="h-3 w-3" />
         </button>
       </div>
       <div className="absolute -top-3 -right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
@@ -299,7 +328,7 @@ export function ERDiagramCanvasEditor() {
         id: ent.id,
         type: 'classicEntity',
         position: ent.position ?? { x: 150 + i * 420, y: 260 },
-        data: { label: ent.name },
+        data: { label: ent.name, isWeak: ent.isWeak ?? false },
         className: 'group',
       })
       const attrCount = ent.attributes.length
@@ -353,13 +382,22 @@ export function ERDiagramCanvasEditor() {
     markDirty()
   }, [setNodes])
 
+  const toggleWeakEntity = useCallback((id: string) => {
+    setNodes(ns => ns.map(n =>
+      n.id === id && n.type === 'classicEntity'
+        ? { ...n, data: { ...n.data, isWeak: !n.data.isWeak } }
+        : n
+    ))
+    markDirty()
+  }, [setNodes])
+
   const openAttrDialog = useCallback((entityId: string) => {
     setTargetEntityId(entityId); setAttrDialogOpen(true)
   }, [])
 
   const patchedNodes = nodes.map(n => ({
     ...n,
-    data: { ...n.data, onDelete: deleteNode, onAddAttr: openAttrDialog, onRename: renameNode },
+    data: { ...n.data, onDelete: deleteNode, onAddAttr: openAttrDialog, onRename: renameNode, onToggleWeak: toggleWeakEntity },
   }))
 
   const onConnect = useCallback((params: Connection) =>
@@ -406,7 +444,7 @@ export function ERDiagramCanvasEditor() {
   // Build payload
   const buildPayload = () => {
     const entities: EREntity[] = nodes.filter(n => n.type === 'classicEntity').map(n => ({
-      id: n.id, name: n.data.label, position: n.position,
+      id: n.id, name: n.data.label, position: n.position, isWeak: n.data.isWeak ?? false,
       attributes: edges.filter(e => e.source === n.id)
         .map(e => nodes.find(an => an.id === e.target && an.type === 'classicAttribute'))
         .filter((an): an is Node => Boolean(an))
@@ -526,9 +564,6 @@ export function ERDiagramCanvasEditor() {
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card/60 backdrop-blur-md shrink-0 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
-              <Tag className="h-3.5 w-3.5 text-white" />
-            </div>
             <div>
               <h2 className="text-sm font-semibold flex items-center gap-2">
                 ER Diagram Editor
@@ -587,8 +622,9 @@ export function ERDiagramCanvasEditor() {
             <Controls className="!bg-white dark:!bg-zinc-800 !border-zinc-200 dark:!border-zinc-700 !shadow-sm !rounded-md overflow-hidden [&>button]:!border-b-zinc-200 dark:[&>button]:!border-b-zinc-700 [&>button]:!text-zinc-600 dark:[&>button]:!text-zinc-300 hover:[&>button]:!bg-zinc-50 dark:hover:[&>button]:!bg-zinc-700" />
             <Panel position="bottom-center">
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/80 backdrop-blur-sm border border-border text-xs text-muted-foreground shadow-lg">
-                <span>{nodes.filter(n => n.type === 'classicEntity').length} entities</span>
+                <span>{nodes.filter(n => n.type === 'classicEntity' && !n.data.isWeak).length} entities</span>
                 <span>·</span>
+                <span>{nodes.filter(n => n.type === 'classicEntity' && n.data.isWeak).length > 0 && <>{nodes.filter(n => n.type === 'classicEntity' && n.data.isWeak).length} weak ·</>}</span>
                 <span>{nodes.filter(n => n.type === 'classicRelationship').length} relationships</span>
                 <span>·</span>
                 <span>{nodes.filter(n => n.type === 'classicAttribute').length} attributes</span>
